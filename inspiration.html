@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Сообщество Auraline — идеи браслетов от пользователей и мастера.">
+    <title>Сообщество · Auraline</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles/tokens.css">
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="stylesheet" href="styles/layout.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/pages/inspiration.css">
+</head>
+<body data-page="inspiration">
+
+    <header id="siteHeader"></header>
+
+    <main class="inspiration-page">
+        <div class="container">
+
+            <header class="page-hero">
+                <p class="eyebrow">сообщество</p>
+                <h1 class="h-1">Идеи, что <em>уже здесь</em>.</h1>
+                <p class="lead">Композиции от тех, кто собирает браслеты для себя и других. Любой можно вдохновиться, лайкнуть или сохранить — а свою опубликовать в конструкторе.</p>
+                <div class="page-hero__cta">
+                    <a href="constructor.html" class="btn btn--primary">
+                        <span>Собрать свою идею</span>
+                        <span class="btn__arrow">→</span>
+                    </a>
+                </div>
+            </header>
+
+            <div class="feed-controls">
+                <input type="search" id="feedSearch" class="field" placeholder="поиск по названию, описанию, тегам…">
+                <div class="feed-controls__sort">
+                    <button class="chip is-active" data-sort="popular">Популярное</button>
+                    <button class="chip" data-sort="recent">Свежее</button>
+                </div>
+            </div>
+
+            <div class="feed-filters">
+                <div class="filter-row">
+                    <span class="filter-row__label">настроение</span>
+                    <div class="filter-chips" id="moodFilters">
+                        <button class="chip is-active" data-mood="all">Все</button>
+                        <button class="chip" data-mood="calm">спокойствие</button>
+                        <button class="chip" data-mood="protection">защита</button>
+                        <button class="chip" data-mood="love">любовь</button>
+                        <button class="chip" data-mood="action">энергия</button>
+                        <button class="chip" data-mood="speech">ясная речь</button>
+                        <button class="chip" data-mood="growth">рост</button>
+                        <button class="chip" data-mood="deep_water">глубокая вода</button>
+                        <button class="chip" data-mood="silence">тишина</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="feedGrid" class="feed-grid" aria-live="polite"></div>
+            <p class="empty-note is-hidden" id="emptyNote">Ничего не нашлось — попробуйте другой запрос.</p>
+
+        </div>
+    </main>
+
+    <footer id="siteFooter"></footer>
+
+    <script type="module" src="js/ui/layout.js"></script>
+    <script type="module" src="js/pages/inspiration.js"></script>
+</body>
+</html>

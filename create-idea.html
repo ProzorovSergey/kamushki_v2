@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Новая идея · Auraline</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles/tokens.css">
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="stylesheet" href="styles/layout.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/pages/auth.css">
+</head>
+<body data-page="create-idea">
+
+    <header id="siteHeader"></header>
+
+    <main class="auth-page">
+        <div class="container">
+            <div class="auth-card">
+                <p class="eyebrow">новая идея</p>
+                <h1 class="h-2">Соберите композицию.</h1>
+                <p class="lead">Идея создаётся в конструкторе. После сборки нажмите «Сохранить идею» и заполните метаданные.</p>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:24px">
+                    <a href="constructor.html" class="btn btn--primary">
+                        <span>Открыть конструктор</span>
+                        <span class="btn__arrow">→</span>
+                    </a>
+                    <a href="profile.html" class="btn btn--ghost">К моим идеям</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer id="siteFooter"></footer>
+
+    <script type="module" src="js/ui/layout.js"></script>
+</body>
+</html>

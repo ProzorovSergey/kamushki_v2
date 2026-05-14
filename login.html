@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Вход · Auraline</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles/tokens.css">
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="stylesheet" href="styles/layout.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/pages/auth.css">
+</head>
+<body data-page="login">
+
+    <header id="siteHeader"></header>
+
+    <main class="auth-page">
+        <div class="container">
+            <div class="auth-card">
+                <p class="eyebrow">вход</p>
+                <h1 class="h-2">С возвращением.</h1>
+                <p class="lead">Ваши идеи ждут.</p>
+
+                <form id="loginForm" class="auth-form" novalidate>
+                    <div>
+                        <label class="field-label" for="username">Логин</label>
+                        <input class="field" id="username" name="username" required autocomplete="username">
+                    </div>
+                    <div>
+                        <label class="field-label" for="password">Пароль</label>
+                        <input class="field" type="password" id="password" name="password" required autocomplete="current-password">
+                    </div>
+                    <button type="submit" class="btn btn--primary btn--block">Войти</button>
+                    <p class="auth-form__alt">
+                        Нет аккаунта? <a href="register.html" class="accent">Создать.</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer id="siteFooter"></footer>
+
+    <script type="module" src="js/ui/layout.js"></script>
+    <script type="module" src="js/pages/login.js"></script>
+</body>
+</html>
