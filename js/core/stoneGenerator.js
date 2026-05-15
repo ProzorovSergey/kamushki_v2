@@ -11,4 +11,5 @@ export {
     generateStoneTexture,
     clearTextureCache,
     preloadAlbedos,
+    onAlbedoReady,
 } from './webglStoneRenderer.js';

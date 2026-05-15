@@ -76,7 +76,7 @@ export function renderBracelet(canvas, state, opts = {}) {
     const H = cssH;
 
     // Фон — глубокий тёмный с радиальным «свечением» в центре,
-    // как на референсных макетах Auraline.
+    // как на референсных макетах Jewerly of Soul.
     ctx.clearRect(0, 0, W, H);
     const bg = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.7);
     bg.addColorStop(0, '#15131A');

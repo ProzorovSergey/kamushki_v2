@@ -37,7 +37,7 @@ async function init() {
     els.grid.innerHTML = skeletonGrid(6);
 
     state.catalogue = (await loadStones()).stones;
-    await preloadAlbedos(state.catalogue);
+    preloadAlbedos(state.catalogue);   // фоновая, не блокирует
 
     state.me = await auth.getCurrentUser();
     auth.onAuthChange(u => { state.me = u; render(); });

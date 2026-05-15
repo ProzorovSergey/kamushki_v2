@@ -1,66 +1,109 @@
 /* =================================================================
- * tokens.css — дизайн-токены проекта Auraline
- * Все значения цветов, типографики и отступов вынесены сюда,
- * чтобы менять оформление точечно.
+ * tokens.css — design-system проекта Jewerly of Soul
+ * Единственный источник цветов, шрифтов, отступов, теней,
+ * радиусов и motion. Все остальные стили обращаются ТОЛЬКО к
+ * этим переменным. Хардкод цветов/spacing-ов в pages/* — баг.
  * ================================================================= */
 
 :root {
-    /* --- Палитра -------------------------------------------------- */
-    --bg:           #06060A;          /* основной фон страниц */
-    --bg-elev-1:    #0E0E14;          /* карточки, панели */
-    --bg-elev-2:    #14141C;          /* поля ввода, чипы */
-    --bg-elev-3:    #1B1B26;          /* hover, активные элементы */
+    /* ===== ПАЛИТРА ============================================ */
+    --bg:           #06060A;
+    --bg-elev-1:    #0E0E14;
+    --bg-elev-2:    #14141C;
+    --bg-elev-3:    #1B1B26;
 
-    --border:       rgba(255, 255, 255, 0.06);
-    --border-strong:rgba(255, 255, 255, 0.12);
+    --border:        rgba(255, 255, 255, 0.06);
+    --border-strong: rgba(255, 255, 255, 0.12);
 
-    --text:         #E8E4DD;          /* основной текст */
-    --text-soft:    #B9B3A8;          /* подзаголовки */
-    --text-muted:   #8A847A;          /* служебный текст */
-    --text-faint:   #5F5A52;          /* кепсы, метки */
+    --text:         #E8E4DD;
+    --text-soft:    #B9B3A8;
+    --text-muted:   #8A847A;
+    --text-faint:   #807A72;          /* подняли с #5F5A52 — WCAG AA */
 
-    --accent:       #D9B879;          /* золотисто-бежевый акцент */
+    --accent:       #D9B879;
     --accent-hover: #E6C58A;
     --accent-soft:  rgba(217, 184, 121, 0.16);
-    --accent-fg:    #1A1408;          /* текст на акценте */
+    --accent-fg:    #1A1408;
 
-    /* стихии (в макетах разные оттенки на чипах) */
     --el-earth: #B79979;
     --el-air:   #BCB7C7;
     --el-water: #7BA8C9;
     --el-fire:  #C97B6F;
     --el-ether: #C9B6E0;
 
-    /* --- Типографика -------------------------------------------- */
+    /* ===== ТИПОГРАФИКА ======================================== */
     --font-display: 'Fraunces', 'Times New Roman', serif;
     --font-ui:      'Manrope', -apple-system, 'Segoe UI', sans-serif;
 
+    /* Fluid размеры (min, fluid, max). Срабатывают между viewport-ами. */
     --text-xxs:  11px;
     --text-xs:   12px;
     --text-sm:   13px;
     --text-base: 15px;
-    --text-md:   17px;
-    --text-lg:   20px;
-    --text-xl:   28px;
-    --text-2xl:  40px;
-    --text-3xl:  56px;
-    --text-4xl:  72px;
+    --text-md:   clamp(16px, 1.2vw + 12px, 18px);
+    --text-lg:   clamp(18px, 1.6vw + 12px, 22px);
+    --text-xl:   clamp(22px, 2.5vw + 12px, 30px);
+    --text-2xl:  clamp(28px, 3.5vw + 12px, 44px);
+    --text-3xl:  clamp(36px, 5vw + 14px, 64px);
+    --text-4xl:  clamp(44px, 7vw + 18px, 88px);
 
-    /* --- Сетка ---------------------------------------------------- */
+    /* ===== СЕТКА И ОТСТУПЫ ==================================== */
     --container: 1180px;
     --gutter:    24px;
 
+    /* spacing scale — 4px шагом. Используем var(--space-N), а не 16px-хардкод. */
+    --space-1:   4px;
+    --space-2:   8px;
+    --space-3:   12px;
+    --space-4:   16px;
+    --space-5:   20px;
+    --space-6:   24px;
+    --space-7:   32px;
+    --space-8:   40px;
+    --space-9:   56px;
+    --space-10:  80px;
+    --space-11:  120px;
+    --space-12:  160px;
+
+    /* ===== РАДИУСЫ ============================================ */
+    --radius-xs:  4px;
     --radius-sm:  6px;
     --radius-md:  10px;
     --radius-lg:  14px;
     --radius-xl:  20px;
+    --radius-2xl: 28px;
+    --radius-full: 9999px;
 
-    --shadow-soft:  0 8px 32px rgba(0, 0, 0, 0.45);
+    /* ===== ТЕНИ =============================================== */
+    --shadow-xs:    0 1px 2px rgba(0, 0, 0, 0.25);
+    --shadow-sm:    0 2px 8px rgba(0, 0, 0, 0.30);
     --shadow-card:  0 4px 18px rgba(0, 0, 0, 0.35);
+    --shadow-md:    0 8px 24px rgba(0, 0, 0, 0.40);
+    --shadow-soft:  0 8px 32px rgba(0, 0, 0, 0.45);
+    --shadow-lg:    0 20px 60px rgba(0, 0, 0, 0.55);
+    --shadow-accent:0 6px 24px rgba(217, 184, 121, 0.25);
 
-    /* --- Анимация ------------------------------------------------- */
-    --ease:     cubic-bezier(0.4, 0, 0.2, 1);
-    --dur-fast: 120ms;
-    --dur-mid:  220ms;
-    --dur-slow: 420ms;
+    /* ===== MOTION ============================================= */
+    --ease:        cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-out:    cubic-bezier(0.16, 1, 0.3, 1);   /* «премиум» easing */
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    --dur-fast:    120ms;
+    --dur-mid:     220ms;
+    --dur-slow:    420ms;
+    --dur-page:    640ms;
+
+    /* ===== A11Y / ИНТЕРАКЦИИ ================================== */
+    --focus-ring:    0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+    --tap-target:    44px;   /* минимальный размер кликабельной зоны на mobile */
+}
+
+/* prefers-reduced-motion — если пользователь отключил анимации, выключаем */
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --dur-fast: 0.01ms;
+        --dur-mid:  0.01ms;
+        --dur-slow: 0.01ms;
+        --dur-page: 0.01ms;
+    }
 }

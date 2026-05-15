@@ -67,16 +67,25 @@
     gap: 8px;
     height: 32px;
     padding: 0 14px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     background: var(--bg-elev-2);
     border: 1px solid var(--border);
     color: var(--text-soft);
     font-size: var(--text-xs);
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    transition: all var(--dur-mid) var(--ease);
+    transition: background var(--dur-mid) var(--ease),
+                color var(--dur-mid) var(--ease),
+                border-color var(--dur-mid) var(--ease),
+                box-shadow var(--dur-mid) var(--ease);
     cursor: pointer;
     user-select: none;
+}
+
+/* На mobile увеличиваем все интерактивные элементы до 44px */
+@media (max-width: 720px) {
+    .chip { height: var(--tap-target); padding: 0 18px; }
+    .filter-chips.compact .chip { height: 38px; }
 }
 
 .chip:hover { color: var(--text); border-color: var(--border-strong); }

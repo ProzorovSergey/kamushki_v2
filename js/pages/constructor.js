@@ -105,7 +105,7 @@ async function init() {
         return;
     }
 
-    await preloadAlbedos(state.catalogue);
+    preloadAlbedos(state.catalogue);   // фоновая, не блокирует
 
     resizeCanvasForRetina();
     window.addEventListener('resize', () => { resizeCanvasForRetina(); redraw(); });

@@ -9,6 +9,7 @@
  */
 
 import { renderBracelet } from '../core/bracelet.js';
+import { onAlbedoReady } from '../core/stoneGenerator.js';
 
 /**
  * Подготовить «фейковое» состояние браслета по списку id и
@@ -38,8 +39,16 @@ export function renderMini(canvas, catalogue, composition) {
         }
     }
 
-    resizeForRetina(canvas);
-    renderBracelet(canvas, { length, stones }, { showGuide: false });
+    const draw = () => {
+        resizeForRetina(canvas);
+        renderBracelet(canvas, { length, stones }, { showGuide: false });
+    };
+    draw();
+
+    // Перерисовываем браслет, когда любой из его камней получит PNG-альбедо.
+    // onAlbedoReady снимается само после срабатывания.
+    const uniqIds = [...new Set(ids)];
+    uniqIds.forEach(id => onAlbedoReady(id, draw));
 }
 
 function resizeForRetina(canvas) {

@@ -50,14 +50,45 @@ export function openModal({ title = '', body = '', buttons = [], onClose, dismis
         setTimeout(() => {
             backdrop.remove();
             if (typeof onClose === 'function') onClose(result);
+            // Возвращаем фокус туда, где он был до открытия модалки
+            if (previousActive && typeof previousActive.focus === 'function') {
+                previousActive.focus();
+            }
         }, 200);
         document.removeEventListener('keydown', onKey);
     }
 
+    // Запоминаем активный элемент для возврата фокуса
+    const previousActive = document.activeElement;
+
+    function focusableInModal() {
+        return [...box.querySelectorAll(
+            'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])'
+        )];
+    }
+
     function onKey(e) {
-        if (dismissible && e.key === 'Escape') close();
+        if (dismissible && e.key === 'Escape') { e.preventDefault(); close(); return; }
+        if (e.key === 'Tab') {
+            // Focus-trap: ходим по кругу внутри модалки
+            const items = focusableInModal();
+            if (!items.length) return;
+            const first = items[0];
+            const last  = items[items.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault(); last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault(); first.focus();
+            }
+        }
     }
     document.addEventListener('keydown', onKey);
+
+    // Фокус на первый элемент модалки при открытии
+    requestAnimationFrame(() => {
+        const first = focusableInModal()[0];
+        if (first) first.focus();
+    });
 
     if (dismissible) {
         backdrop.addEventListener('click', e => { if (e.target === backdrop) close(); });

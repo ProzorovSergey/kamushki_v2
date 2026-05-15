@@ -43,6 +43,30 @@ a:hover { color: var(--accent); }
 
 ::selection { background: var(--accent-soft); color: var(--accent); }
 
+/* --- Focus-rings (видимы только при keyboard-навигации) ------- */
+:focus { outline: none; }
+:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-radius: var(--radius-sm);
+}
+/* Для chip/button focus-ring подкручен под форму */
+.chip:focus-visible,
+.btn:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+}
+
+/* --- prefers-reduced-motion: гасим transition вне токенов ---- */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
 /* --- Типографические утилиты ----------------------------------- */
 
 .font-display {

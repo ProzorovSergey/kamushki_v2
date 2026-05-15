@@ -16,6 +16,22 @@ const NAV = [
     { id: 'contact',      href: 'contact.html',       label: 'Связаться' },
 ];
 
+// Иконки для bottom-nav (только главные 4 раздела для thumb-зоны)
+const BOTTOM_NAV = [
+    { id: 'home',         href: 'index.html',
+      icon: '<path d="M3 12 12 3l9 9"/><path d="M5 10v10h14V10"/>',
+      label: 'Главная' },
+    { id: 'constructor',  href: 'constructor.html',
+      icon: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="3.5" r="1.5"/><circle cx="12" cy="20.5" r="1.5"/><circle cx="3.5" cy="12" r="1.5"/><circle cx="20.5" cy="12" r="1.5"/>',
+      label: 'Сборка' },
+    { id: 'stones',       href: 'stones.html',
+      icon: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18M3 12h18"/>',
+      label: 'Камни' },
+    { id: 'inspiration',  href: 'inspiration.html',
+      icon: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>',
+      label: 'Лента' },
+];
+
 const PROTECTED_PAGES = new Set(['profile', 'create-idea']);
 
 /** Заполнить шапку и подвал. */
@@ -26,6 +42,7 @@ export async function mountLayout() {
     const active = document.body.dataset.page || 'home';
 
     renderHeader(active);
+    renderBottomNav(active);
     renderFooter(active);
 
     // Защита страниц
@@ -48,7 +65,7 @@ function renderHeader(active) {
     header.classList.add('site-header');
     header.innerHTML = `
         <div class="site-header__inner">
-            <a href="index.html" class="site-header__brand" aria-label="Auraline — главная">Auraline</a>
+            <a href="index.html" class="site-header__brand" aria-label="Jewerly of Soul — главная">Jewerly of Soul</a>
 
             <button class="site-nav__toggle" id="navToggle" aria-label="Меню" aria-expanded="false">
                 <svg class="icon" viewBox="0 0 24 24" width="22" height="22">
@@ -67,9 +84,19 @@ function renderHeader(active) {
 
     const toggle = header.querySelector('#navToggle');
     const nav    = header.querySelector('#siteNav');
-    toggle.addEventListener('click', () => {
-        const open = nav.classList.toggle('is-open');
+    function setNavOpen(open) {
+        nav.classList.toggle('is-open', open);
         toggle.setAttribute('aria-expanded', String(open));
+        document.body.style.overflow = open ? 'hidden' : '';
+    }
+    toggle.addEventListener('click', () => setNavOpen(!nav.classList.contains('is-open')));
+    // Закрывать drawer по клику на ссылку
+    nav.querySelectorAll('.site-nav__link').forEach(a =>
+        a.addEventListener('click', () => setNavOpen(false))
+    );
+    // Закрывать drawer по Escape
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && nav.classList.contains('is-open')) setNavOpen(false);
     });
 
     renderUserSlot(active);
@@ -127,6 +154,24 @@ async function renderUserSlot(active) {
     });
 }
 
+function renderBottomNav(active) {
+    // Создаём, если ещё нет
+    let nav = document.getElementById('bottomNav');
+    if (!nav) {
+        nav = document.createElement('nav');
+        nav.id = 'bottomNav';
+        nav.className = 'bottom-nav';
+        nav.setAttribute('aria-label', 'Нижняя навигация');
+        document.body.appendChild(nav);
+    }
+    nav.innerHTML = BOTTOM_NAV.map(n => `
+        <a href="${n.href}" class="bottom-nav__link${n.id === active ? ' is-active' : ''}" aria-label="${n.label}">
+            <svg class="bottom-nav__icon" viewBox="0 0 24 24" aria-hidden="true">${n.icon}</svg>
+            <span>${n.label}</span>
+        </a>
+    `).join('');
+}
+
 function renderFooter(active) {
     const footer = document.getElementById('siteFooter');
     if (!footer) return;
@@ -134,7 +179,7 @@ function renderFooter(active) {
     footer.innerHTML = `
         <div class="site-footer__inner">
             <div>
-                <div class="site-footer__brand">Auraline</div>
+                <div class="site-footer__brand">Jewerly of Soul</div>
                 <div class="site-footer__tagline">
                     Личная мастерская браслетов из натуральных камней.<br>
                     Композиции по запросу.
@@ -148,7 +193,7 @@ function renderFooter(active) {
         </div>
         <div class="site-footer__bottom">
             <span>© ${new Date().getFullYear()} · сделано неспешно</span>
-            <span>Тбилиси, Грузия</span>
+            <span>Ижевск, Россия</span>
         </div>
     `;
 }

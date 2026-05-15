@@ -6,7 +6,7 @@
  */
 
 import { loadStones } from '../core/database.js';
-import { generateStoneTexture, preloadAlbedos } from '../core/stoneGenerator.js';
+import { generateStoneTexture, preloadAlbedos, onAlbedoReady } from '../core/stoneGenerator.js';
 
 const state = {
     catalogue: [],
@@ -38,7 +38,9 @@ async function init() {
         return;
     }
 
-    await preloadAlbedos(state.catalogue);
+    // Фоновая (не блокирующая) загрузка PNG — рендерим procedural сразу,
+    // PNG подменяются по мере прихода
+    preloadAlbedos(state.catalogue);
 
     bindFilter(els.fEl,  'element');
     bindFilter(els.fCol, 'color');
@@ -106,19 +108,24 @@ function render() {
         </article>
     `).join('');
 
-    // Рисуем камни
+    // Рисуем камни. drawOnce — функция перерисовки конкретного canvas.
     els.grid.querySelectorAll('canvas[data-stone]').forEach(c => {
         const id = c.dataset.stone;
         const stone = list.find(x => x.id === id);
         if (!stone) return;
-        const dpr = window.devicePixelRatio || 1;
-        const w = c.clientWidth || 120;
-        c.width = w * dpr; c.height = w * dpr;
-        const ctx = c.getContext('2d');
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.clearRect(0, 0, w, w);
-        const tex = generateStoneTexture(stone, w * 0.92, 0);
-        ctx.drawImage(tex, w * 0.04, w * 0.04, w * 0.92, w * 0.92);
+        const drawOnce = () => {
+            const dpr = window.devicePixelRatio || 1;
+            const w = c.clientWidth || 120;
+            c.width = w * dpr; c.height = w * dpr;
+            const ctx = c.getContext('2d');
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, w, w);
+            const tex = generateStoneTexture(stone, w * 0.92, 0);
+            ctx.drawImage(tex, w * 0.04, w * 0.04, w * 0.92, w * 0.92);
+        };
+        drawOnce();
+        // Когда PNG прилетит — перерисовать с фото-альбедо
+        onAlbedoReady(id, drawOnce);
     });
 }
 

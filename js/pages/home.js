@@ -9,7 +9,9 @@
 
 import { loadStones, findStone } from '../core/database.js';
 import { autoMountMinis, renderMini } from '../ui/miniBracelet.js';
-import { generateStoneTexture, preloadAlbedos } from '../core/stoneGenerator.js';
+import { generateStoneTexture, preloadAlbedos, onAlbedoReady } from '../core/stoneGenerator.js';
+import * as ideas from '../services/ideaService.js';
+import * as users from '../services/userService.js';
 
 const FEATURED = [
     {
@@ -56,12 +58,14 @@ async function init() {
     }
     const catalogue = data.stones;
 
-    // Сначала пробуем подгрузить PNG-альбедо для всех камней.
-    // Если ассетов нет — promise зарезолвится моментально, рендерим процедурно.
-    await preloadAlbedos(catalogue);
+    // Фоновая загрузка PNG — рендерим procedural сразу, не ждём
+    preloadAlbedos(catalogue);
 
     // Hero и about canvas — через автомаунт по data-атрибутам
     autoMountMinis(catalogue);
+
+    // Hero v2: социальное доказательство + триптих топ-3 идей
+    await renderHeroProofAndTrio(catalogue);
 
     // Карточки "Что уже собрано"
     const grid = document.getElementById('featuredGrid');
@@ -105,21 +109,82 @@ async function init() {
             `;
         }).join('');
 
-        // Рисуем по одному большому камню в каждом canvas
+        // Рисуем по одному большому камню в каждом canvas + перерисовываем,
+        // когда подгрузится PNG-альбедо
         quartet.querySelectorAll('canvas[data-stone-id]').forEach(c => {
             const id = c.dataset.stoneId;
             const stone = findStone(catalogue, id);
             if (!stone) return;
-            const dpr = window.devicePixelRatio || 1;
-            const w = c.clientWidth || 200;
-            c.width = w * dpr; c.height = w * dpr;
-            const ctx = c.getContext('2d');
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-            ctx.clearRect(0, 0, w, w);
-            const tex = generateStoneTexture(stone, w * 0.7, 0);
-            ctx.drawImage(tex, w * 0.15, w * 0.15, w * 0.7, w * 0.7);
+            const draw = () => {
+                const dpr = window.devicePixelRatio || 1;
+                const w = c.clientWidth || 200;
+                c.width = w * dpr; c.height = w * dpr;
+                const ctx = c.getContext('2d');
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+                ctx.clearRect(0, 0, w, w);
+                const tex = generateStoneTexture(stone, w * 0.7, 0);
+                ctx.drawImage(tex, w * 0.15, w * 0.15, w * 0.7, w * 0.7);
+            };
+            draw();
+            onAlbedoReady(id, draw);
         });
     }
+}
+
+async function renderHeroProofAndTrio(catalogue) {
+    // Цифры: сколько идей в сообществе, сколько авторов
+    const feed = await ideas.listFeed({});
+    const publicCount = feed.length;
+    const authorIds = new Set(feed.map(i => i.authorId));
+    const totalLikes = feed.reduce((sum, i) => sum + (i.likesCount || 0), 0);
+
+    const proofEl = document.getElementById('heroProof');
+    if (proofEl) {
+        proofEl.innerHTML = `
+            <div class="proof-stat">
+                <span class="proof-stat__num">${publicCount}+</span>
+                <span class="proof-stat__label">идей в ленте</span>
+            </div>
+            <div class="proof-stat">
+                <span class="proof-stat__num">${authorIds.size}</span>
+                <span class="proof-stat__label">авторов</span>
+            </div>
+            <div class="proof-stat">
+                <span class="proof-stat__num">${totalLikes}</span>
+                <span class="proof-stat__label">лайков</span>
+            </div>
+        `;
+    }
+
+    // Триптих — топ-3 идеи по лайкам
+    const trioEl = document.getElementById('heroTrio');
+    if (trioEl) {
+        const top3 = [...feed].sort((a, b) => (b.likesCount || 0) - (a.likesCount || 0)).slice(0, 3);
+        trioEl.innerHTML = top3.map(i => `
+            <a class="hero-tile" href="idea.html?id=${encodeURIComponent(i.id)}"
+               aria-label="${escapeHtml(i.title)}">
+                <canvas data-mini-stones="${i.stones.map(s => s.id).join(',')}"
+                        data-size="${i.stones[0]?.size || 8}"
+                        data-length="${i.length || 180}"></canvas>
+                <span class="hero-tile__name">${escapeHtml(i.title)}</span>
+            </a>
+        `).join('');
+
+        trioEl.querySelectorAll('canvas[data-mini-stones]').forEach(c => {
+            const ids = c.dataset.miniStones.split(',').filter(Boolean);
+            renderMini(c, catalogue, {
+                stoneIds: ids,
+                size: +c.dataset.size || 8,
+                length: +c.dataset.length || 180,
+            });
+        });
+    }
+}
+
+function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => (
+        { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]
+    ));
 }
 
 init();

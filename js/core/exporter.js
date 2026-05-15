@@ -55,7 +55,7 @@ export function exportJSON(data, prefix = 'bracelet') {
 /**
  * Адрес почты мастера. Меняй здесь, если переименуешь почту бренда.
  */
-export const MASTER_EMAIL = 'hello@auraline.studio';
+export const MASTER_EMAIL = 'jewerlyofsoul25@gmail.com';
 
 /**
  * Сформировать ссылку mailto: с готовым письмом-заявкой.

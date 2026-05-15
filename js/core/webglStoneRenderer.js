@@ -490,6 +490,7 @@ async function tryLoadAlbedo(stoneId) {
             for (const k of [...cache.keys()]) {
                 if (k.startsWith(stoneId + '_')) cache.delete(k);
             }
+            fireAlbedoReady(stoneId);
             return entry;
         } catch (err) {
             const entry = { texture: null, status: 'missing' };
@@ -503,22 +504,49 @@ async function tryLoadAlbedo(stoneId) {
 }
 
 /**
- * Запустить предзагрузку PNG-альбедо для всего каталога.
- * Имеет смысл звать один раз при инициализации страницы.
+ * Запустить предзагрузку PNG-альбедо. По умолчанию — НЕ ЖДЁТ,
+ * чтобы не блокировать рендер: возвращает резолвящийся Promise
+ * сразу, а загрузка идёт в фоне. Когда PNG приходит — кэш
+ * рендеров инвалидируется для этого stone, и подписчики
+ * (через onAlbedoReady) перерисовывают.
  *
- * @param {Array} catalogue   массив объектов stone
- * @param {Function} onProgress   (loaded, total) — опциональный колбэк
- * @returns {Promise<void>}    резолвится, когда попытки завершены
+ * @param {Array} catalogue           массив объектов stone
+ * @param {Object} [opts]
+ * @param {boolean} [opts.eager=false] true — ждать всех (старое поведение)
+ * @returns {Promise<void>}
  */
-export async function preloadAlbedos(catalogue, onProgress) {
-    let done = 0;
-    const total = catalogue.length;
-    await Promise.all(catalogue.map(async s => {
-        try { await tryLoadAlbedo(s.id); }
-        catch (_) { /* ignore */ }
-        done++;
-        if (typeof onProgress === 'function') onProgress(done, total);
-    }));
+export async function preloadAlbedos(catalogue, opts = {}) {
+    if (opts.eager) {
+        await Promise.all(catalogue.map(s => tryLoadAlbedo(s.id).catch(() => null)));
+        return;
+    }
+    // Фоновая ленивая загрузка — не блокирует
+    catalogue.forEach(s => { tryLoadAlbedo(s.id).catch(() => null); });
+}
+
+/**
+ * Подписаться на готовность PNG-альбедо конкретного камня.
+ * Колбэк вызывается один раз когда текстура загружена в WebGL.
+ *
+ * @param {string} stoneId
+ * @param {Function} cb       () => void
+ */
+const albedoListeners = new Map();   // stoneId → Set<cb>
+export function onAlbedoReady(stoneId, cb) {
+    const entry = albedoCache.get(stoneId);
+    if (entry && entry.status === 'ready') { cb(); return () => {}; }
+    if (!albedoListeners.has(stoneId)) albedoListeners.set(stoneId, new Set());
+    albedoListeners.get(stoneId).add(cb);
+    return () => albedoListeners.get(stoneId)?.delete(cb);
+}
+
+function fireAlbedoReady(stoneId) {
+    const set = albedoListeners.get(stoneId);
+    if (!set) return;
+    for (const cb of set) {
+        try { cb(); } catch (e) { console.error(e); }
+    }
+    set.clear();
 }
 
 // =================================================================

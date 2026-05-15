@@ -3,14 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Auraline — личная мастерская браслетов из натуральных полудрагоценных камней. Композиции по запросу, ручная сборка.">
-    <title>Auraline · Браслеты из натуральных камней</title>
+    <meta name="description" content="Jewerly of Soul — личная мастерская браслетов из натуральных полудрагоценных камней. Композиции по запросу, ручная сборка. Ижевск, Россия.">
+    <title>Jewerly of Soul · Браслеты из натуральных камней</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="styles/tokens.css">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="apple-touch-icon" href="assets/favicon.svg">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#06060A">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Jewerly of Soul">
+    <meta property="og:image" content="assets/og-image.svg">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="stylesheet" href="styles/base.css">
     <link rel="stylesheet" href="styles/layout.css">
     <link rel="stylesheet" href="styles/components.css">
@@ -26,7 +33,7 @@
         <section class="hero">
             <div class="container hero__inner">
                 <div class="hero__copy">
-                    <p class="eyebrow">личная мастерская · с 2018</p>
+                    <p class="eyebrow">личная мастерская · с 2025 · Ижевск</p>
                     <h1 class="font-display hero__title">
                         Браслеты из<br>
                         <em>натуральных</em><br>
@@ -42,15 +49,23 @@
                         </a>
                         <a href="inspiration.html" class="btn btn--ghost">Сообщество</a>
                     </div>
+                    <div class="hero__proof" id="heroProof">
+                        <!-- цифры подставляются из home.js -->
+                    </div>
                 </div>
-                <div class="hero__visual" aria-hidden="true">
-                    <canvas
-                        id="heroCanvas"
-                        data-mini-bracelet
-                        data-stones="amethyst,labradorite,moonstone,lapis,rose-quartz,green-jade,tiger-eye,carnelian,amazonite,rock-crystal,malachite,sunstone"
-                        data-size="9"
-                        data-length="200"
-                        width="540" height="540"></canvas>
+                <div class="hero__visual">
+                    <div class="hero__visual-main" aria-hidden="true">
+                        <canvas
+                            id="heroCanvas"
+                            data-mini-bracelet
+                            data-stones="amethyst,labradorite,moonstone,lapis,rose-quartz,green-jade,tiger-eye,carnelian,amazonite,rock-crystal,malachite,sunstone"
+                            data-size="9"
+                            data-length="200"
+                            width="540" height="540"></canvas>
+                    </div>
+                    <div class="hero__visual-trio" id="heroTrio" aria-label="Популярные идеи сообщества">
+                        <!-- триптих из топ-3 идей подставляется из home.js -->
+                    </div>
                 </div>
             </div>
         </section>

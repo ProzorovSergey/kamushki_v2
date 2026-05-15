@@ -31,7 +31,7 @@ if (form) {
             '',
             message,
             '',
-            '— отправлено с auraline.studio',
+            '— отправлено с jewerlyofsoul.ru',
         ].join('\n');
 
         const href = `mailto:${MASTER_EMAIL}`
