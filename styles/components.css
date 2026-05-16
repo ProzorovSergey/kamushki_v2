@@ -413,17 +413,28 @@ textarea.field {
 
 .idea-card {
     display: block;
+    position: relative;
     background: var(--bg-elev-1);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     overflow: hidden;
     color: inherit;
     text-decoration: none;
-    transition: border-color var(--dur-mid) var(--ease), transform var(--dur-mid) var(--ease);
+    transform-style: preserve-3d;
+    transform:
+        perspective(1000px)
+        rotateX(var(--tilt-x, 0deg))
+        rotateY(var(--tilt-y, 0deg))
+        translateY(calc(var(--tilt-active, 0) * -4px));
+    transition:
+        transform var(--dur-mid) var(--ease-out),
+        border-color var(--dur-mid) var(--ease),
+        box-shadow var(--dur-mid) var(--ease-out);
+    will-change: transform;
 }
 .idea-card:hover {
-    border-color: var(--border-strong);
-    transform: translateY(-2px);
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md), var(--shadow-accent);
     color: inherit;
 }
 
@@ -435,28 +446,46 @@ textarea.field {
     align-items: center;
     justify-content: center;
     border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
 }
 .idea-card__visual canvas { width: 100%; height: 100%; }
 
-.idea-card__body { padding: 18px 20px 20px; }
+/* Glare-блик при tilt — лёгкий, не «дешёвый» */
+.idea-card__visual::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at
+        calc(50% + var(--tilt-shift-x, 0px) * 4)
+        calc(50% + var(--tilt-shift-y, 0px) * 4),
+        rgba(255,255,255,0.06) 0%,
+        transparent 35%);
+    opacity: var(--tilt-active, 0);
+    pointer-events: none;
+    transition: opacity var(--dur-mid) var(--ease);
+}
+
+.idea-card__body {
+    padding: var(--space-4) var(--space-5) var(--space-5);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
 
 .idea-card__title {
     font-family: var(--font-display);
     font-size: var(--text-md);
     line-height: 1.25;
-    margin-bottom: 4px;
 }
 
+/* Sub-строка скрыта по умолчанию — у нас минимализм */
 .idea-card__sub {
-    font-size: var(--text-xs);
-    color: var(--text-muted);
-    letter-spacing: 0.04em;
-    margin-bottom: 8px;
+    display: none;
 }
 
 .idea-card__author {
-    display: flex; align-items: center; gap: 8px;
-    margin-top: 10px;
+    display: flex; align-items: center; gap: var(--space-2);
     color: var(--text-muted);
     font-size: var(--text-xs);
 }
@@ -470,10 +499,43 @@ textarea.field {
     color: var(--text-muted);
 }
 .idea-card__badge--draft { color: var(--text-faint); font-style: italic; }
+
 .idea-card__like {
     display: inline-flex; align-items: center; gap: 4px;
     font-size: var(--text-xs);
     color: var(--text-soft);
 }
 .idea-card__like.is-active { color: var(--accent); }
+
+/* ---- Overlay по hover — показывает sub-информацию ---- */
+.idea-card__overlay {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: var(--space-5) var(--space-5) var(--space-4);
+    background: linear-gradient(to top,
+        rgba(6, 6, 10, 0.92) 0%,
+        rgba(6, 6, 10, 0.78) 50%,
+        rgba(6, 6, 10, 0) 100%);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    transform: translateY(100%);
+    opacity: 0;
+    pointer-events: none;
+    transition:
+        transform var(--dur-mid) var(--ease-out),
+        opacity var(--dur-mid) var(--ease-out);
+}
+.idea-card:hover .idea-card__overlay {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.idea-card__overlay-info {
+    display: flex;
+    gap: var(--space-3);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--text-soft);
+}
 

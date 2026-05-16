@@ -71,7 +71,7 @@ async function init() {
     const grid = document.getElementById('featuredGrid');
     if (grid) {
         grid.innerHTML = FEATURED.map((item, idx) => `
-            <article class="featured-card">
+            <article class="featured-card" data-tilt data-tilt-max="3">
                 <div class="featured-card__visual">
                     <canvas
                         data-mini-bracelet
@@ -89,6 +89,7 @@ async function init() {
                 </div>
             </article>
         `).join('');
+        autoMountMinis(catalogue);
         autoMountMinis(catalogue);
     }
 
@@ -162,7 +163,7 @@ async function renderHeroProofAndTrio(catalogue) {
         const top3 = [...feed].sort((a, b) => (b.likesCount || 0) - (a.likesCount || 0)).slice(0, 3);
         trioEl.innerHTML = top3.map(i => `
             <a class="hero-tile" href="idea.html?id=${encodeURIComponent(i.id)}"
-               aria-label="${escapeHtml(i.title)}">
+               aria-label="${escapeHtml(i.title)}" data-tilt data-tilt-max="6">
                 <canvas data-mini-stones="${i.stones.map(s => s.id).join(',')}"
                         data-size="${i.stones[0]?.size || 8}"
                         data-length="${i.length || 180}"></canvas>

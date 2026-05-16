@@ -7,6 +7,7 @@
 
 import * as auth from '../services/authService.js';
 import { ensureSeed } from '../services/seedService.js';
+import './tilt.js';   // авто-подключение микровзаимодействий для всех [data-tilt]
 
 const NAV = [
     { id: 'home',         href: 'index.html',         label: 'Главная' },

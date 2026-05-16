@@ -84,16 +84,22 @@ async function switchTab(tab) {
 
 function renderIdeas(list) {
     els.grid.innerHTML = list.map(i => `
-        <a class="idea-card" href="idea.html?id=${encodeURIComponent(i.id)}">
+        <a class="idea-card" href="idea.html?id=${encodeURIComponent(i.id)}" data-tilt data-tilt-max="4">
             <div class="idea-card__visual">
                 <canvas data-mini-stones="${i.stones.map(s => s.id).join(',')}"
                         data-size="${i.stones[0]?.size || 8}"
                         data-length="${i.length || 180}"
                         width="320" height="320"></canvas>
+                <div class="idea-card__overlay" aria-hidden="true">
+                    <div class="idea-card__overlay-info">
+                        <span>${i.stones.length} камней</span>
+                        <span>·</span>
+                        <span>${(i.length || 180)/10} см</span>
+                    </div>
+                </div>
             </div>
             <div class="idea-card__body">
                 <h3 class="idea-card__title">${escapeHtml(i.title || 'Без названия')}</h3>
-                <p class="idea-card__sub">${i.stones.length} камней · ${(i.length || 180)/10} см</p>
                 ${i.isPublic
                   ? `<span class="idea-card__badge">опубликовано · ♥ ${i.likesCount || 0}</span>`
                   : `<span class="idea-card__badge idea-card__badge--draft">черновик</span>`}

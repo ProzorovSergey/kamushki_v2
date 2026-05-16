@@ -257,12 +257,15 @@ void main() {
 
     // Diffuse:
     //   - procedural: полное освещение по Ламберту (PNG нет, нужно строить лайтинг с нуля).
-    //   - PNG: лёгкое модулирование (картинка уже освещена). Сохраняем форму, но добавляем сверху объём.
+    //   - PNG: высокий baseline + лёгкое объёмное модулирование. Картинка уже несёт
+    //     своё освещение, нам нужно лишь добавить «дыхание» — иначе бусина смотрится
+    //     слишком тёмной и плоской.
     vec3 diffuse;
     if (u_hasTexture == 1) {
-        // 75% — родной PNG, 25% — наш PBR-лайтинг сверху
-        float lit = NdotL * 0.55 + NdotL2 * 0.20 + 0.25;
-        diffuse = albedo * mix(1.0, lit, 0.35);
+        // baseline 0.92, plus 0.18 of soft lighting variance → камень не теряет
+        // ни одного бита альбедо в центре, но мягко проявляет форму.
+        float litSoft = NdotL * 0.55 + NdotL2 * 0.25;
+        diffuse = albedo * (0.92 + 0.18 * litSoft);
     } else {
         diffuse = albedo * (NdotL * 0.88 + NdotL2 * 0.22 + 0.10);
     }
@@ -299,10 +302,12 @@ void main() {
         ss = u_accent * (1.0 - thick) * 0.45;
     }
 
-    // AO у силуэта
-    float ao = smoothstep(0.0, 0.55, N.z);
+    // AO у силуэта: для процедурного — обычное, для PNG — мягче (фото уже несёт AO).
+    float ao = (u_hasTexture == 1)
+        ? smoothstep(-0.2, 0.5, N.z) * 0.3 + 0.7   // плавнее и с baseline 0.7
+        : smoothstep(0.0, 0.55, N.z);
 
-    // Sigle clearcoat hat for polished+glossy
+    // Single clearcoat hat for polished+glossy
     float clearcoat = 0.0;
     if (u_finish != 1) {
         clearcoat = pow(NdotH, 80.0) * 0.45;
@@ -310,8 +315,9 @@ void main() {
 
     vec3 color = diffuse * ao + specCol * spec + rimCol + ss + vec3(clearcoat);
 
-    // Лёгкий гамма-tonemap (Reinhard)
-    color = color / (1.0 + color * 0.6);
+    // Лёгкий tonemap. Для PNG почти выключен, чтобы не «гасить» цвета фотографии.
+    float tmStrength = (u_hasTexture == 1) ? 0.25 : 0.6;
+    color = color / (1.0 + color * tmStrength);
 
     // Финальный alpha: либо наша sphere-маска, либо альфа PNG-фотографии,
     // что меньше. Так смягчённый край бусины из PNG корректно «угасает».

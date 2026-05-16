@@ -91,7 +91,7 @@ function render() {
     els.empty.classList.add('is-hidden');
 
     els.grid.innerHTML = list.map(s => `
-        <article class="stone-card${s.rarity === 'rare' ? ' is-rare' : ''}">
+        <article class="stone-card${s.rarity === 'rare' ? ' is-rare' : ''}" data-tilt data-tilt-max="3">
             ${s.rarity === 'rare' ? '<span class="rare-badge">rare</span>' : ''}
             <div class="stone-card__visual">
                 <canvas data-stone="${s.id}" width="240" height="240"></canvas>
@@ -99,11 +99,16 @@ function render() {
             <h3 class="stone-card__name">${s.name}</h3>
             <div class="stone-card__meta">
                 <span class="element-tag" data-el="${s.element}">${s.element}</span>
-                <span class="stone-card__color">${s.color_category}</span>
-                <span class="stone-card__sizes">${(s.sizes || []).join(' · ')} мм</span>
             </div>
-            <div class="stone-card__energy">
-                ${(s.energy || []).map(e => `<span>${e}</span>`).join('')}
+            <div class="stone-card__overlay" aria-hidden="true">
+                <div class="stone-card__overlay-row">
+                    <span class="stone-card__color">${s.color_category}</span>
+                    <span>·</span>
+                    <span>${(s.sizes || []).join(' · ')} мм</span>
+                </div>
+                <div class="stone-card__overlay-energy">
+                    ${(s.energy || []).map(e => `<span>${e}</span>`).join('')}
+                </div>
             </div>
         </article>
     `).join('');
