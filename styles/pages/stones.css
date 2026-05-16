@@ -6,19 +6,98 @@
 
 .page-hero {
     max-width: 920px;
-    margin-bottom: 48px;
+    margin-bottom: var(--space-7);
 }
-.page-hero .h-1 { margin-top: 12px; }
-.page-hero .lead { margin-top: 18px; max-width: 600px; }
+.page-hero .h-1 { margin-top: var(--space-3); }
+.page-hero .lead { margin-top: var(--space-4); max-width: 600px; }
 
-/* --- Фильтры ----------------------------------------------------- */
+/* --- Sticky filter-bar ------------------------------------------- */
 
-.filters {
-    margin-top: 32px;
+.filter-bar {
+    position: sticky;
+    top: 64px;                  /* высота шапки */
+    z-index: 40;
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+    padding: var(--space-3) 0;
+    margin-bottom: var(--space-5);
+    background: rgba(6, 6, 10, 0.82);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+}
+
+.filter-bar__search {
+    flex: 1;
+    max-width: 520px;
+}
+
+.filter-bar__toggle {
+    flex-shrink: 0;
+    gap: var(--space-2);
+    padding: 0 var(--space-4);
+}
+.filter-bar__toggle[aria-expanded="true"] {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.filter-bar__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    background: var(--accent);
+    color: var(--accent-fg);
+    font-size: 10px;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    letter-spacing: 0;
+}
+
+.filter-bar__clear {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0 var(--space-2);
+    transition: color var(--dur-mid) var(--ease);
+}
+.filter-bar__clear:hover { color: var(--accent); }
+
+/* --- Раскрываемая панель фильтров ------------------------------- */
+
+.filter-panel {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    max-width: 1000px;
+    gap: var(--space-4);
+    margin-bottom: var(--space-7);
+    padding: var(--space-5) var(--space-6);
+    background: var(--bg-elev-1);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    animation: filter-panel-in var(--dur-mid) var(--ease-out);
+}
+
+.filter-panel[hidden] {
+    display: none;
+}
+
+@keyframes filter-panel-in {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .filter-row {

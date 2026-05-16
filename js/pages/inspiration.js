@@ -10,10 +10,10 @@ import * as auth from '../services/authService.js';
 import * as ideas from '../services/ideaService.js';
 import * as users from '../services/userService.js';
 import { loadStones } from '../core/database.js';
-import { renderMini } from '../ui/miniBracelet.js';
 import { preloadAlbedos } from '../core/stoneGenerator.js';
 import { toast } from '../ui/toast.js';
 import { skeletonGrid } from '../ui/skeleton.js';
+import { ideaCardHTML, mountIdeaCardCanvases } from '../ui/ideaCard.js';
 
 const state = {
     catalogue: [],
@@ -89,59 +89,13 @@ function render() {
     }
     els.empty.classList.add('is-hidden');
 
-    els.grid.innerHTML = state.feed.map(idea => {
-        const author = state.authors.get(idea.authorId);
-        const liked  = state.me && (state.me.likes || []).includes(idea.id);
-        return `
-            <article class="idea-card feed-card" data-id="${idea.id}" data-tilt data-tilt-max="4">
-                <a class="feed-card__visual-link" href="idea.html?id=${encodeURIComponent(idea.id)}">
-                    <div class="idea-card__visual">
-                        <canvas data-mini-stones="${idea.stones.map(s => s.id).join(',')}"
-                                data-size="${idea.stones[0]?.size || 8}"
-                                data-length="${idea.length || 180}"
-                                width="320" height="320"></canvas>
-                        <div class="idea-card__overlay" aria-hidden="true">
-                            <div class="idea-card__overlay-info">
-                                <span>${idea.stones.length} камней</span>
-                                <span>·</span>
-                                <span>${(idea.length||180)/10} см</span>
-                            </div>
-                            ${(idea.tags || []).slice(0, 3).length ? `
-                                <div style="display:flex;gap:4px;flex-wrap:wrap">
-                                    ${(idea.tags || []).slice(0, 3).map(t => `<span class="feed-card__tag">${escapeHtml(t)}</span>`).join('')}
-                                </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                </a>
-                <div class="idea-card__body">
-                    <a href="idea.html?id=${encodeURIComponent(idea.id)}" style="text-decoration:none;color:inherit">
-                        <h3 class="idea-card__title">${escapeHtml(idea.title)}</h3>
-                    </a>
-                    <div class="feed-card__foot">
-                        <div class="idea-card__author">
-                            <span class="avatar">${escapeHtml(author?.avatar || '✦')}</span>
-                            <span>${escapeHtml(author?.displayName || 'аноним')}</span>
-                        </div>
-                        <button class="idea-card__like ${liked ? 'is-active' : ''}" data-like="${idea.id}" type="button" aria-label="лайк">
-                            <svg class="icon" viewBox="0 0 24 24" width="14" height="14" fill="${liked ? 'currentColor' : 'none'}" stroke="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                            <span>${idea.likesCount || 0}</span>
-                        </button>
-                    </div>
-                </div>
-            </article>
-        `;
-    }).join('');
+    els.grid.innerHTML = state.feed.map(idea => ideaCardHTML(idea, {
+        author: state.authors.get(idea.authorId),
+        currentUser: state.me,
+        variant: 'feed',
+    })).join('');
 
-    // Мини-браслеты
-    els.grid.querySelectorAll('canvas[data-mini-stones]').forEach(c => {
-        const ids = c.dataset.miniStones.split(',').filter(Boolean);
-        renderMini(c, state.catalogue, {
-            stoneIds: ids,
-            size: +c.dataset.size || 8,
-            length: +c.dataset.length || 180,
-        });
-    });
+    mountIdeaCardCanvases(els.grid, state.catalogue);
 
     // Лайки
     els.grid.querySelectorAll('button[data-like]').forEach(btn => {

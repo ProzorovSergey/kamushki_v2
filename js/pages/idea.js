@@ -34,7 +34,77 @@ async function init() {
     const catalogue = (await loadStones()).stones;
     await preloadAlbedos(catalogue);
 
+    // SEO: подменяем title/description под конкретную идею + JSON-LD
+    updateSeoForIdea(idea, author);
+
     render({ idea, author, me, catalogue });
+}
+
+/**
+ * Обновляет <title>, og:* и впрыскивает JSON-LD CreativeWork для
+ * конкретной идеи. Это даёт богатые превью при шеринге ссылки в
+ * Telegram/WhatsApp и помогает поисковикам индексировать карточки.
+ */
+function updateSeoForIdea(idea, author) {
+    const title = `${idea.title} · Идея браслета · Jewerly of Soul`;
+    const desc  = (idea.description || '').trim()
+        || `Браслет из ${idea.stones.length} натуральных камней, ${(idea.length||180)/10} см. Композиция от ${author?.displayName || 'мастера'}.`;
+
+    document.title = title;
+
+    setMeta('description', desc);
+    setMeta('og:title', title, 'property');
+    setMeta('og:description', desc, 'property');
+    setMeta('twitter:title', title);
+    setMeta('twitter:description', desc);
+
+    // JSON-LD
+    const ld = {
+        '@context': 'https://schema.org',
+        '@type': 'CreativeWork',
+        name: idea.title,
+        description: desc,
+        dateCreated: idea.createdAt,
+        dateModified: idea.updatedAt,
+        inLanguage: 'ru',
+        author: author ? {
+            '@type': 'Person',
+            name: author.displayName,
+            alternateName: '@' + author.username,
+        } : undefined,
+        interactionStatistic: {
+            '@type': 'InteractionCounter',
+            interactionType: 'https://schema.org/LikeAction',
+            userInteractionCount: idea.likesCount || 0,
+        },
+        keywords: (idea.tags || []).join(', '),
+        isPartOf: {
+            '@type': 'WebSite',
+            name: 'Jewerly of Soul',
+            url: 'https://prozorovsergey.github.io/kamushki_v2/',
+        },
+    };
+    // Чистим undefined
+    for (const k of Object.keys(ld)) if (ld[k] === undefined) delete ld[k];
+
+    let script = document.getElementById('jsonLdIdea');
+    if (!script) {
+        script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.id = 'jsonLdIdea';
+        document.head.appendChild(script);
+    }
+    script.textContent = JSON.stringify(ld);
+}
+
+function setMeta(name, content, attr = 'name') {
+    let m = document.head.querySelector(`meta[${attr}="${name}"]`);
+    if (!m) {
+        m = document.createElement('meta');
+        m.setAttribute(attr, name);
+        document.head.appendChild(m);
+    }
+    m.setAttribute('content', content);
 }
 
 function render({ idea, author, me, catalogue }) {

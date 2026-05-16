@@ -9,9 +9,9 @@ import * as auth from '../services/authService.js';
 import * as ideas from '../services/ideaService.js';
 import { ideaApi } from '../api/index.js';
 import { loadStones } from '../core/database.js';
-import { renderMini } from '../ui/miniBracelet.js';
 import { preloadAlbedos } from '../core/stoneGenerator.js';
 import { skeletonGrid } from '../ui/skeleton.js';
+import { ideaCardHTML, mountIdeaCardCanvases } from '../ui/ideaCard.js';
 
 let catalogue = [];
 let currentTab = 'my';
@@ -83,38 +83,8 @@ async function switchTab(tab) {
 }
 
 function renderIdeas(list) {
-    els.grid.innerHTML = list.map(i => `
-        <a class="idea-card" href="idea.html?id=${encodeURIComponent(i.id)}" data-tilt data-tilt-max="4">
-            <div class="idea-card__visual">
-                <canvas data-mini-stones="${i.stones.map(s => s.id).join(',')}"
-                        data-size="${i.stones[0]?.size || 8}"
-                        data-length="${i.length || 180}"
-                        width="320" height="320"></canvas>
-                <div class="idea-card__overlay" aria-hidden="true">
-                    <div class="idea-card__overlay-info">
-                        <span>${i.stones.length} камней</span>
-                        <span>·</span>
-                        <span>${(i.length || 180)/10} см</span>
-                    </div>
-                </div>
-            </div>
-            <div class="idea-card__body">
-                <h3 class="idea-card__title">${escapeHtml(i.title || 'Без названия')}</h3>
-                ${i.isPublic
-                  ? `<span class="idea-card__badge">опубликовано · ♥ ${i.likesCount || 0}</span>`
-                  : `<span class="idea-card__badge idea-card__badge--draft">черновик</span>`}
-            </div>
-        </a>
-    `).join('');
-
-    els.grid.querySelectorAll('canvas[data-mini-stones]').forEach(c => {
-        const ids = c.dataset.miniStones.split(',').filter(Boolean);
-        renderMini(c, catalogue, {
-            stoneIds: ids,
-            size: +c.dataset.size || 8,
-            length: +c.dataset.length || 180,
-        });
-    });
+    els.grid.innerHTML = list.map(i => ideaCardHTML(i, { variant: 'profile' })).join('');
+    mountIdeaCardCanvases(els.grid, catalogue);
 }
 
 function escapeHtml(s) {

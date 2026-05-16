@@ -18,14 +18,18 @@ const state = {
 };
 
 const els = {
-    grid:    document.getElementById('stoneGrid'),
-    count:   document.getElementById('stoneCount'),
-    search:  document.getElementById('stoneSearch'),
-    fEl:     document.getElementById('elementFilters'),
-    fCol:    document.getElementById('colorFilters'),
-    fEn:     document.getElementById('energyFilters'),
-    fRar:    document.getElementById('rarityFilters'),
-    empty:   document.getElementById('emptyNote'),
+    grid:       document.getElementById('stoneGrid'),
+    count:      document.getElementById('stoneCount'),
+    search:     document.getElementById('stoneSearch'),
+    fEl:        document.getElementById('elementFilters'),
+    fCol:       document.getElementById('colorFilters'),
+    fEn:        document.getElementById('energyFilters'),
+    fRar:       document.getElementById('rarityFilters'),
+    empty:      document.getElementById('emptyNote'),
+    panel:      document.getElementById('filterPanel'),
+    toggle:     document.getElementById('filterToggle'),
+    filterCnt:  document.getElementById('filterCount'),
+    clearBtn:   document.getElementById('filterClear'),
 };
 
 async function init() {
@@ -49,10 +53,64 @@ async function init() {
 
     els.search.addEventListener('input', () => {
         state.search = els.search.value.trim().toLowerCase();
+        updateFilterCount();
         render();
     });
 
+    // Раскрытие панели фильтров
+    if (els.toggle && els.panel) {
+        els.toggle.addEventListener('click', () => {
+            const open = els.panel.hasAttribute('hidden');
+            if (open) {
+                els.panel.removeAttribute('hidden');
+                els.toggle.setAttribute('aria-expanded', 'true');
+            } else {
+                els.panel.setAttribute('hidden', '');
+                els.toggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+
+    // Очистить все фильтры
+    if (els.clearBtn) {
+        els.clearBtn.addEventListener('click', () => clearAllFilters());
+    }
+
+    updateFilterCount();
     render();
+}
+
+function clearAllFilters() {
+    state.element = 'all';
+    state.color   = 'all';
+    state.energy  = 'all';
+    state.rarity  = 'all';
+    state.search  = '';
+    els.search.value = '';
+    [els.fEl, els.fCol, els.fEn, els.fRar].forEach(group => {
+        if (!group) return;
+        group.querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
+        const first = group.querySelector('.chip[data-el="all"], .chip[data-color="all"], .chip[data-energy="all"], .chip[data-rarity="all"]');
+        if (first) first.classList.add('is-active');
+    });
+    updateFilterCount();
+    render();
+}
+
+function updateFilterCount() {
+    let n = 0;
+    if (state.element !== 'all') n++;
+    if (state.color   !== 'all') n++;
+    if (state.energy  !== 'all') n++;
+    if (state.rarity  !== 'all') n++;
+    if (state.search) n++;
+    if (els.filterCnt) {
+        els.filterCnt.textContent = n;
+        els.filterCnt.hidden = n === 0;
+    }
+    if (els.clearBtn) {
+        els.clearBtn.hidden = n === 0;
+    }
 }
 
 function bindFilter(container, key) {
@@ -63,6 +121,7 @@ function bindFilter(container, key) {
         container.querySelectorAll('.chip').forEach(c => c.classList.remove('is-active'));
         chip.classList.add('is-active');
         state[key] = chip.dataset[key] || 'all';
+        updateFilterCount();
         render();
     });
 }
