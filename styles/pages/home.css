@@ -52,10 +52,12 @@
 
 .proof-stat__num {
     font-family: var(--font-display);
-    font-size: var(--text-xl);
+    font-size: clamp(32px, 4vw, 48px);
     color: var(--accent);
     line-height: 1;
     display: block;
+    letter-spacing: -0.02em;
+    font-feature-settings: 'tnum' 1;   /* табличные цифры — равной ширины */
 }
 
 .proof-stat__label {
@@ -92,17 +94,35 @@
     height: 100%;
     border-radius: 50%;
     box-shadow: var(--shadow-lg);
+    animation: hero-bracelet-breath 80s linear infinite;
+    transform-origin: 50% 50%;
 }
 
-/* Лёгкое сияние под главным браслетом */
+/* Лёгкое сияние под главным браслетом — пульсирует с большой амплитудой */
 .hero__visual-main::before {
     content: '';
     position: absolute;
-    inset: -10%;
+    inset: -12%;
     background: radial-gradient(circle at 50% 50%,
         rgba(217, 184, 121, 0.10) 0%, transparent 60%);
     z-index: -1;
     pointer-events: none;
+    animation: hero-aura-pulse 6s ease-in-out infinite;
+}
+
+@keyframes hero-bracelet-breath {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+@keyframes hero-aura-pulse {
+    0%, 100% { opacity: 0.55; transform: scale(1); }
+    50%      { opacity: 1.0;  transform: scale(1.04); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero__visual-main canvas { animation: none; }
+    .hero__visual-main::before { animation: none; opacity: 0.7; }
 }
 
 .hero__visual-trio {

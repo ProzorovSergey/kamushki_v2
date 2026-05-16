@@ -8,7 +8,11 @@
 import * as auth from '../services/authService.js';
 import { ensureSeed } from '../services/seedService.js';
 import './tilt.js';        // авто-подключение микровзаимодействий для всех [data-tilt]
+import './reveal.js';      // scroll-reveal для [data-reveal]
+import './cursor.js';      // premium-курсор (только на desktop)
 import './registerSW.js';  // регистрация Service Worker для offline-режима
+import './pageTransitions.js'; // плавные переходы между страницами (View Transitions API)
+import { toggleTheme, effectiveTheme, onThemeChange } from './theme.js';
 
 const NAV = [
     { id: 'home',         href: 'index.html',         label: 'Главная' },
@@ -79,10 +83,32 @@ function renderHeader(active) {
                 ${NAV.filter(n => n.id !== 'home').map(n => `
                     <a href="${n.href}" class="site-nav__link${n.id === active ? ' is-active' : ''}">${n.label}</a>
                 `).join('')}
+                <button class="theme-toggle" id="themeToggle" type="button" aria-label="Переключить тему">
+                    <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                    </svg>
+                    <svg class="theme-toggle__icon theme-toggle__icon--sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4"/>
+                        <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/>
+                    </svg>
+                </button>
                 <span class="site-nav__user" id="siteNavUser">…</span>
             </nav>
         </div>
     `;
+
+    // Theme-toggle
+    const themeBtn = header.querySelector('#themeToggle');
+    if (themeBtn) {
+        const syncBtn = () => {
+            const eff = effectiveTheme();
+            themeBtn.dataset.theme = eff;
+            themeBtn.setAttribute('title', eff === 'light' ? 'Тёмная тема' : 'Светлая тема');
+        };
+        syncBtn();
+        themeBtn.addEventListener('click', () => { toggleTheme(); syncBtn(); });
+        onThemeChange(syncBtn);
+    }
 
     const toggle = header.querySelector('#navToggle');
     const nav    = header.querySelector('#siteNav');

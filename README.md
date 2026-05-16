@@ -1,111 +1,118 @@
 # Jewerly of Soul · мастерская и сообщество браслетов
 
-Личная мастерская браслетов из натуральных полудрагоценных камней + платформа сообщества: каждый пользователь может собрать идею, сохранить, опубликовать в общей ленте, поставить лайки чужим. Работает **полностью в браузере** — без npm, без бэкенда. Архитектура готова к подключению backend: достаточно подменить `js/api/local/*`.
+Личная мастерская браслетов из натуральных полудрагоценных камней + платформа сообщества: пользователь собирает идею, сохраняет, публикует в общей ленте, лайкает чужие. Работает **полностью в браузере** — без npm, без бэкенда, ванильный JS. Архитектура готова к подключению backend: достаточно подменить `js/api/local/*`.
+
+**Бренд:** Jewerly of Soul · Ижевск, Россия · с 2025  
+**Контакты:** Telegram `@sdproz` · email `jewerlyofsoul25@gmail.com`
+
+---
 
 ## Что умеет
 
 | Раздел                | Файл                | Возможности |
 |-----------------------|---------------------|-------------|
-| Главная               | `index.html`        | Hero, превью композиций, 4 камня в фокусе |
-| Конструктор           | `constructor.html`  | Сборка браслета, 66 камней, AI-описание энергии, сохранение идеи, mailto + PNG |
-| Камни                 | `stones.html`       | Каталог 66 минералов · фильтры: стихия / цвет / энергия / редкость |
-| Сообщество            | `inspiration.html`  | Лента идей · лайки · поиск · сортировка · фильтр настроения |
-| Идея                  | `idea.html?id=…`    | Детальная страница: состав, автор, лайк/избранное, удаление |
+| Главная               | `index.html`        | Hero с дыханием браслета + социальное доказательство · триптих топ-3 идей · витрина · 4 камня в фокусе · about |
+| Конструктор           | `constructor.html`  | Сборка из 66 камней · фильтры (стихия/цвет/редкость) · AI-описание энергии · сохранение идеи · sticky-сцена на mobile · mailto + PNG |
+| Камни                 | `stones.html`       | Каталог 66 минералов · sticky-search · раскрываемые фильтры (стихия/цвет/энергия/редкость) · tilt-эффекты |
+| Сообщество            | `inspiration.html`  | Лента идей · лайки · поиск · сортировка · фильтр настроения · карточки с tilt/glare |
+| Идея                  | `idea.html?id=…`    | Детальная страница · состав · автор · лайк/избранное · удаление · JSON-LD CreativeWork |
 | Профиль               | `profile.html`      | Мои идеи / избранное / понравились |
-| Регистрация и вход    | `register.html` · `login.html` | Локальная авторизация |
-| Связаться             | `contact.html`      | Форма обратной связи (mailto) |
+| Регистрация и вход    | `register.html` · `login.html` | Локальная авторизация (WebCrypto SHA-256 + salt) |
+| Связаться             | `contact.html`      | Telegram · email · форма обратной связи (mailto) |
+| Новая идея            | `create-idea.html`  | Точка входа в конструктор для авторизованных |
 
-## Архитектура (слои)
+---
+
+## Архитектура
 
 ```
 js/
-├── core/             ← движки и низкоуровневые утилиты
-│   ├── webglStoneRenderer.js    WebGL PBR-рендер камней (гибрид procedural + albedo PNG)
-│   ├── stoneGenerator.js        совместимый прокси
-│   ├── bracelet.js              геометрия + отрисовка браслета
-│   ├── database.js              fetch + localStorage-кэш базы камней
-│   ├── exporter.js              PNG, JSON, mailto-помощник
-│   ├── userStorage.js           обёртка над localStorage (паролы, токены, JSON)
-│   └── aiAssistant.js           rule-based mock AI: описание + рекомендации + названия
+├── core/                       ← движки и низкоуровневые утилиты
+│   ├── webgl/                  ← WebGL PBR-рендер (P3.1 разбит на 5 модулей)
+│   │   ├── stoneVertex.glsl.js
+│   │   ├── stoneShader.glsl.js
+│   │   ├── glContext.js
+│   │   ├── albedoLoader.js
+│   │   └── index.js
+│   ├── webglStoneRenderer.js   ← re-export для обратной совместимости
+│   ├── stoneGenerator.js       ← совместимый прокси
+│   ├── bracelet.js             ← геометрия + отрисовка
+│   ├── database.js             ← fetch + localStorage-кэш
+│   ├── exporter.js             ← PNG, JSON, mailto-помощник
+│   ├── userStorage.js          ← обёртка над localStorage (пароли, токены, JSON)
+│   └── aiAssistant.js          ← rule-based mock AI
 │
-├── api/              ← API ABSTRACTION (тонкие методы CRUD)
-│   ├── interfaces.js            JSDoc-типы (контракты)
-│   ├── index.js                 точка переключения; сейчас → ./local/
-│   └── local/                   реализация на localStorage
+├── api/                        ← API ABSTRACTION
+│   ├── interfaces.js           ← JSDoc-контракты
+│   ├── index.js                ← точка переключения; сейчас → ./local/
+│   └── local/                  ← реализация на localStorage
 │       ├── authApi.js  · userApi.js
 │       └── ideaApi.js  · aiApi.js
 │
-├── services/         ← APPLICATION SERVICES (использует UI)
-│   ├── authService.js           сессия, кэш юзера, событие 'auth:change'
-│   ├── ideaService.js           создание идей, права, expand stones
-│   ├── userService.js           публичные профили
-│   ├── aiService.js             вызов AI + кэш в памяти
-│   └── seedService.js           один раз засевает community.seed.json
+├── services/                   ← APPLICATION SERVICES (UI зовёт только их)
+│   ├── authService.js          ← сессия, кэш юзера, событие 'auth:change'
+│   ├── ideaService.js          ← права, создание идей, expand stones
+│   ├── userService.js          ← публичные профили
+│   ├── aiService.js            ← вызов AI + кэш в памяти
+│   └── seedService.js          ← засев community.seed.json
 │
-├── ui/               ← reusable компоненты
-│   ├── layout.js                шапка + футер + user-меню + защита страниц
-│   ├── miniBracelet.js          мини-превью браслета для карточек
-│   ├── toast.js                 нотификации
-│   ├── modal.js                 модальные окна
-│   └── skeleton.js              skeleton-загрузчики
+├── ui/                         ← reusable компоненты
+│   ├── layout.js               ← шапка + футер + drawer + bottom-nav + theme-toggle
+│   ├── ideaCard.js             ← единый шаблон карточки идеи (P3.2)
+│   ├── miniBracelet.js         ← мини-превью браслета
+│   ├── toast.js                ← нотификации
+│   ├── modal.js                ← модальные окна с focus-trap
+│   ├── skeleton.js             ← skeleton-загрузчики
+│   ├── tilt.js                 ← 3D-tilt микровзаимодействия
+│   ├── reveal.js               ← scroll-reveal через IntersectionObserver
+│   ├── cursor.js               ← premium-курсор (desktop)
+│   ├── theme.js                ← светлая/тёмная тема + сохранение
+│   ├── pageTransitions.js      ← View Transitions API
+│   └── registerSW.js           ← регистрация Service Worker
 │
-└── pages/            ← страничный код (по одному файлу на HTML)
+└── pages/                      ← страничный код (по одному файлу на HTML)
+    ├── home.js · constructor.js · stones.js
+    ├── inspiration.js · idea.js · profile.js
+    ├── login.js · register.js · contact.js
 ```
 
-**Правило слоёв.** UI зовёт только `services/*`. Services зовут `api/index.js`. API — единственное, что трогает `localStorage`. Это значит — чтобы подключить настоящий backend (Supabase / Firebase / Node), достаточно написать `js/api/remote/*` и поменять один импорт в `js/api/index.js`.
+**Правило слоёв.** UI зовёт `services/*` → `api/index.js` → storage. Чтобы подключить настоящий backend (Supabase / Firebase / Node), достаточно написать `js/api/remote/*` и поменять один импорт в `js/api/index.js`.
+
+---
 
 ## Данные
 
 ```
 data/
-├── stones.json              база 66 минералов
-├── inspirations.json        9 готовых композиций мастера
-└── community.seed.json      10 фейк-юзеров + 30 идей (засевается при первом запуске)
+├── stones.json              ← база 66 минералов
+├── inspirations.json        ← 9 готовых композиций мастера
+└── community.seed.json      ← 10 фейк-юзеров + 30 идей (засевается при первом запуске)
 ```
 
 ### Структура user
-
 ```js
-{
-  id, username, displayName, avatar,
-  passwordHash, salt,           // SHA-256(salt:password), WebCrypto
+{ id, username, displayName, avatar,
+  passwordHash, salt,            // WebCrypto SHA-256
   createdAt,
-  likes:           [ideaId],
-  favorites:       [ideaId],
-  publishedIdeas:  [ideaId],
-}
+  likes: [ideaId], favorites: [ideaId], publishedIdeas: [ideaId] }
 ```
 
 ### Структура idea
-
 ```js
-{
-  id, authorId, title, description,
-  stones: [{ id, size }],
-  length,                       // мм
-  tags: [string],
-  mood,                         // calm/love/protection/action/speech/growth/deep_water/silence
-  isPublic,
-  createdAt, updatedAt,
-  likesCount,
-  energyDescription,
-}
+{ id, authorId, title, description,
+  stones: [{ id, size }], length,
+  tags: [string], mood,          // calm/love/protection/action/speech/growth/deep_water/silence
+  isPublic, createdAt, updatedAt, likesCount, energyDescription }
 ```
 
-### AI response
-
+### AI response (mock)
 ```js
-{
-  energyDescription,            // абзац про энергетику браслета
-  recommendations,              // когда/как носить
-  nameSuggestions: [string],    // 3-5 поэтичных названий
-  dominants: {
-    elements: [string],
-    energies: [string],
-    colors:   [string],
-  }
-}
+{ energyDescription, recommendations,
+  nameSuggestions: [string],
+  dominants: { elements, energies, colors } }
 ```
+
+---
 
 ## Запуск
 
@@ -115,48 +122,111 @@ python3 -m http.server 8000
 npx serve .
 ```
 
-Откройте `http://localhost:8000`. При первом заходе на любую страницу — сидовое сообщество загрузится автоматически.
+Откройте `http://localhost:8000`. При первом заходе seed-сообщество подгрузится автоматически.
 
-## Деплой
+---
+
+## Деплой на GitHub Pages
 
 ```bash
-git init && git add . && git commit -m "auraline platform"
-git remote add origin https://github.com/USERNAME/REPO.git
-git push -u origin main
+git add . && git commit -m "update" && git push
 ```
+В **Settings → Pages → Source: main / (root)**. Через 1-2 минуты обновится по адресу `https://USERNAME.github.io/REPO/`.
 
-В **Settings → Pages → Source: main / (root)**.
+> Адрес почты мастера меняется в `js/core/exporter.js`, константа `MASTER_EMAIL`.
 
-> Замените `MASTER_EMAIL` в `js/core/exporter.js` на свою настоящую почту.
+---
 
-## Подключение настоящего backend
+## Чек-лист roadmap (всё выполнено)
 
-Архитектура спроектирована для безболезненной миграции:
+### Priority 1 — критические UX
+- ✅ Lazy-loading 65 PNG камней через IntersectionObserver
+- ✅ Mobile navigation: slide-in drawer + bottom-nav
+- ✅ Sticky-сцена в конструкторе на mobile
+- ✅ Open Graph + Twitter Card + favicon + apple-touch-icon
+- ✅ Focus-rings (`:focus-visible`) + focus-trap в модалках
 
-1. Создайте `js/api/remote/` с реализациями `authApi.js`, `ideaApi.js`, `userApi.js`, `aiApi.js` — теми же сигнатурами, что в `js/api/interfaces.js`. Внутри — `fetch` к вашему API.
-2. В `js/api/index.js` поменяйте импорт:
-   ```js
-   import * as authApi from './remote/authApi.js';
-   // ...
-   ```
-3. Всё. UI и services не меняются.
+### Priority 2 — визуальное улучшение
+- ✅ Расширенные design tokens (spacing/radius/shadow/motion/fluid-typography)
+- ✅ Hero v2: социальное доказательство (цифры) + триптих топ-3 идей + staggered-анимации
+- ✅ Карточки без шума: минимализм на лице + overlay с деталями по hover
+- ✅ Sticky-search + раскрываемые фильтры с счётчиком активных + «Очистить»
+- ✅ Микровзаимодействия: tilt (3D-наклон), elevation, glare-эффекты
+- ✅ Fluid typography через `clamp()`
 
-Для AI это особенно простой переход: `js/api/local/aiApi.js` сейчас вызывает локальный rule-based mock; вместо него можно отправлять `fetch` в OpenAI/Anthropic API.
+### Priority 3 — архитектура
+- ✅ Рефакторинг WebGL: 719-строчный монолит → 5 модулей в `js/core/webgl/`
+- ✅ Единый компонент `IdeaCard` (DRY между home/profile/inspiration)
+- ✅ CSS utility classes (.u-flex/.u-gap-N/.u-text-N/.sr-only)
+- ⚠ Партиал `<head>` через JS-инжект — отложен (требует build-step; шрифты должны быть в HTML до парсинга, иначе FOUC)
+
+### Priority 4 — продвинутые
+- ✅ PWA: Service Worker + offline-кэш, manifest, install-prompt
+- ✅ Светлая тема: toggle в шапке, `prefers-color-scheme` auto, сохранение в localStorage
+- ✅ JSON-LD: Organization + WebSite на главной, CreativeWork+Person динамически для idea.html
+- ✅ View Transitions API для плавных переходов между страницами (Chrome/Edge 126+, graceful degradation для Firefox/Safari)
+- ⏳ Backend (Supabase) — архитектура готова, реализация по необходимости
+
+### Брендинг и контент (`изменения контента и брендинга.txt`)
+- ✅ Название: Jewerly of Soul (везде, включая og-теги и JSON-LD)
+- ✅ Telegram @sdproz (везде)
+- ✅ Email jewerlyofsoul25@gmail.com (везде, в т.ч. MASTER_EMAIL)
+- ✅ Локация Ижевск, Россия (везде)
+- ✅ Текст «личная мастерская · с 2025» в hero
+- ✅ Контакты удобны на desktop (страница `contact.html`) и mobile (bottom-nav + drawer)
+- ✅ Premium brand identity: favicon с лого, og-image с триптихом, золотые тонкие нити-разделители, дыхание hero, премиум-курсор
+
+### Quick wins
+- ✅ Контраст `--text-faint` поднят до AA (#807A72)
+- ✅ `prefers-reduced-motion` уважается во всех анимациях
+- ✅ Focus-ring единый через `--focus-ring`
+- ✅ Tap-targets 44px на mobile
+- ✅ Theme-color + manifest + iconset
+- ✅ Sitemap.xml + robots.txt
+
+### Визуальные «дизайн-фишки» сверх roadmap
+- ✅ Scroll-reveal на всех страницах (staggered fade-up)
+- ✅ Дыхание hero: 80-сек вращение браслета + 6-сек пульсация сияния
+- ✅ Тонкие золотые нити-разделители между секциями
+- ✅ Display-типографика (`.h-display-xl`, `.keynote-num`)
+- ✅ Premium cursor: золотая точка + кольцо с инерцией, mix-blend-mode screen
+
+---
+
+## WebGL PBR-рендер · гибрид procedural + реальные текстуры
+
+Каждый камень рисуется как «impostor sphere» во фрагментном шейдере:
+1. **Нормаль сферы** считается из координат пикселя.
+2. **Cook-Torrance / GGX** specular — настоящий PBR.
+3. **Lambert diffuse** с двумя источниками (key + fill).
+4. **Подповерхностное рассеяние** для прозрачных камней.
+5. **Направленная ирисация** для лабрадорита/лунного/перламутра.
+6. **Микрорельеф** через многооктавный FBM-шум.
+7. **PNG-альбедо** (если есть `assets/stones/<id>.png`) подмешивается как цвет; шейдер сверху добавляет блик и тень.
+
+Подробности по добавлению камней и генерации PNG — в `ASSETS_GUIDE.md`.
+
+---
 
 ## Безопасность
 
-Пароли хешируются SHA-256 + соль через WebCrypto. **Это не production-уровень** — для боевого режима нужен bcrypt/argon2 на сервере. Сейчас уровень «mock-storage с консистентной структурой данных».
+Пароли хешируются SHA-256 + соль через WebCrypto. **Не production-уровень** — для боевого режима нужен bcrypt/argon2 на сервере. Сейчас уровень «mock-storage с консистентной структурой данных».
 
-При смене браузера или после очистки `localStorage` локальные аккаунты пропадают. Намеренно — пока нет настоящей базы.
+---
 
 ## Защита диплома — что подчеркнуть
 
-- **WebGL PBR-рендер камней** — Cook-Torrance + GGX + Fresnel + SSS + iridescence, гибрид procedural и реальных PNG (см. `ASSETS_GUIDE.md`). 66 минералов, 21 редкий — особая подсветка.
-- **Чистая слоёная архитектура** — core / api / services / ui / pages. Контракты в `interfaces.js`. Дизайн под подключение backend.
-- **Локальная имитация сообщества** — seed-данные с 10 авторами и 30 идеями, лайки/избранное работают.
-- **Mock AI на правилах** — анализ доминант стихий/энергий, генерация описаний и названий. Архитектура готова к замене на реальный LLM.
-- **Без зависимостей** — ванильный JS, ES-модули. Деплой на GitHub Pages.
-- **Каталог 66 камней** с 4 типами фильтров (стихия / цвет / энергия / редкость), у каждого камня — PBR-фотореализм через PNG-альбедо.
+- **WebGL PBR-рендер** (Cook-Torrance + GGX + Fresnel + SSS + iridescence), гибрид procedural и реальных PNG. 66 минералов, 21 редкий — особая подсветка. Архитектурно: 5 чистых модулей с разделением VS/FS/контекст/loader/render.
+- **Чистая слоёная архитектура** — core / api / services / ui / pages. Контракты в `interfaces.js`. Дизайн под подключение backend без переписывания UI.
+- **Полная локальная имитация сообщества** — seed-данные с 10 авторами и 30 идеями, работающие лайки/избранное/публикации.
+- **Mock AI на правилах** — анализ доминант стихий/энергий, генерация описаний и названий. Архитектурно готов к замене на реальный LLM (одна правка в `js/api/local/aiApi.js`).
+- **PWA с offline-режимом** — Service Worker, app-shell precache, three-стратегия кэширования (HTML network-first, CSS/JS stale-while-revalidate, PNG cache-first).
+- **A11y по стандартам WCAG AA** — контраст, focus-trap в модалках, keyboard navigation, `prefers-reduced-motion`, tap-targets 44px.
+- **SEO-готовность** — JSON-LD Organization + WebSite + динамическая CreativeWork, sitemap.xml, robots.txt, OG + Twitter Card на каждой странице.
+- **Премиум-визуал** — дыхание hero, тонкие золотые разделители, scroll-reveal, premium-cursor, View Transitions, tilt-эффекты.
+- **Без зависимостей** — ванильный JS, ES-модули, 0 npm-пакетов, 0 build-step. Деплой на GitHub Pages.
+
+---
 
 ## Лицензия
 

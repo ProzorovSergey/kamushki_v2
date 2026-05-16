@@ -507,6 +507,83 @@ textarea.field {
 }
 .idea-card__like.is-active { color: var(--accent); }
 
+/* =================================================================
+ * PREMIUM CURSOR — золотая точка + кольцо с инерцией
+ * Активируется через body.cursor-on (выставляется в cursor.js
+ * только на desktop, не на touch).
+ * ============================================================== */
+
+.cursor-dot,
+.cursor-ring {
+    position: fixed;
+    top: 0; left: 0;
+    pointer-events: none;
+    z-index: 10000;
+    mix-blend-mode: screen;
+    opacity: 0;
+    transition: opacity var(--dur-mid) var(--ease);
+    will-change: transform;
+}
+
+.cursor-dot {
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 12px rgba(217, 184, 121, 0.6);
+}
+
+.cursor-ring {
+    width: 32px; height: 32px;
+    border: 1px solid rgba(217, 184, 121, 0.45);
+    border-radius: 50%;
+    transition:
+        opacity var(--dur-mid) var(--ease),
+        width var(--dur-mid) var(--ease-out),
+        height var(--dur-mid) var(--ease-out),
+        border-color var(--dur-mid) var(--ease),
+        background var(--dur-mid) var(--ease);
+}
+
+/* Hover на интерактивных — кольцо вырастает + золотой фон */
+.cursor-ring.is-interactive {
+    width: 56px;
+    height: 56px;
+    border-color: var(--accent);
+    background: rgba(217, 184, 121, 0.10);
+}
+
+/* Click — кольцо сжимается */
+.cursor-ring.is-clicked {
+    width: 20px;
+    height: 20px;
+    border-color: var(--accent);
+}
+
+/* Скрываем системный курсор только когда кастомный точно работает */
+body.cursor-on,
+body.cursor-on a,
+body.cursor-on button,
+body.cursor-on input,
+body.cursor-on textarea,
+body.cursor-on select,
+body.cursor-on .chip,
+body.cursor-on .stone-chip,
+body.cursor-on [data-tilt] {
+    cursor: none;
+}
+
+/* На touch — никогда не отключаем системный курсор */
+@media (hover: none) {
+    body.cursor-on, body.cursor-on * { cursor: auto; }
+    .cursor-dot, .cursor-ring { display: none; }
+}
+
+/* prefers-reduced-motion — выключаем кастомный курсор */
+@media (prefers-reduced-motion: reduce) {
+    .cursor-dot, .cursor-ring { display: none; }
+    body.cursor-on, body.cursor-on * { cursor: auto; }
+}
+
 /* ---- Overlay по hover — показывает sub-информацию ---- */
 .idea-card__overlay {
     position: absolute;

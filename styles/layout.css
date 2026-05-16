@@ -69,6 +69,48 @@
     color: var(--text-soft);
 }
 
+/* --- Theme toggle (sun/moon в шапке) ------------------------ */
+
+.theme-toggle {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: transparent;
+    transition:
+        background var(--dur-mid) var(--ease),
+        color var(--dur-mid) var(--ease),
+        border-color var(--dur-mid) var(--ease);
+}
+.theme-toggle:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+.theme-toggle__icon {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: opacity var(--dur-mid) var(--ease), transform var(--dur-slow) var(--ease-out);
+}
+
+/* Когда сейчас тёмная — показываем солнце (значит «переключи в светлую»);
+   когда светлая — показываем луну. data-theme на самой кнопке выставляет layout.js */
+.theme-toggle[data-theme="dark"] .theme-toggle__icon--sun  { opacity: 1; transform: rotate(0deg);  }
+.theme-toggle[data-theme="dark"] .theme-toggle__icon--moon { opacity: 0; transform: rotate(-90deg); }
+.theme-toggle[data-theme="light"] .theme-toggle__icon--moon { opacity: 1; transform: rotate(0deg);  }
+.theme-toggle[data-theme="light"] .theme-toggle__icon--sun  { opacity: 0; transform: rotate(90deg); }
+
 /* --- User-меню в шапке --------------------------------------- */
 
 .site-nav__user {

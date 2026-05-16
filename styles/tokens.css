@@ -107,3 +107,70 @@
         --dur-page: 0.01ms;
     }
 }
+
+/* =================================================================
+ * СВЕТЛАЯ ТЕМА — переопределяет цветовые токены при
+ * [data-theme="light"] на <html>. Включается:
+ *   - вручную через toggle в шапке (theme.js → localStorage);
+ *   - автоматически по prefers-color-scheme: light, если выбор
+ *     не зафиксирован пользователем.
+ * Все остальные токены (типографика, spacing, motion) общие.
+ * ============================================================== */
+
+html[data-theme="light"] {
+    --bg:           #FAF7F0;
+    --bg-elev-1:    #FFFFFF;
+    --bg-elev-2:    #F4EFE5;
+    --bg-elev-3:    #ECE5D7;
+
+    --border:        rgba(20, 18, 14, 0.08);
+    --border-strong: rgba(20, 18, 14, 0.18);
+
+    --text:         #1E1A14;
+    --text-soft:    #4A4439;
+    --text-muted:   #6B6457;
+    --text-faint:   #8A8378;
+
+    --accent:       #B8924A;          /* чуть глубже золота — лучше читается на светлом */
+    --accent-hover: #9A7634;
+    --accent-soft:  rgba(184, 146, 74, 0.14);
+    --accent-fg:    #FAF7F0;
+
+    --shadow-xs:    0 1px 2px rgba(60, 50, 30, 0.08);
+    --shadow-sm:    0 2px 8px rgba(60, 50, 30, 0.10);
+    --shadow-card:  0 4px 18px rgba(60, 50, 30, 0.12);
+    --shadow-md:    0 8px 24px rgba(60, 50, 30, 0.15);
+    --shadow-soft:  0 8px 32px rgba(60, 50, 30, 0.18);
+    --shadow-lg:    0 20px 60px rgba(60, 50, 30, 0.22);
+    --shadow-accent:0 6px 24px rgba(184, 146, 74, 0.30);
+
+    --focus-ring:   0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+}
+
+/* Базовая «дымка» фона — для светлой темы тёплая, не голубая */
+html[data-theme="light"] body {
+    background-image:
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(184, 146, 74, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 90% 30%, rgba(120, 80, 180, 0.04) 0%, transparent 70%);
+}
+
+/* Auto-light по системе, если пользователь явно не выбрал тёмную */
+@media (prefers-color-scheme: light) {
+    html:not([data-theme="dark"]):not([data-theme="light"]) {
+        /* Импортируем правила из html[data-theme="light"] через двойное правило */
+        --bg:           #FAF7F0;
+        --bg-elev-1:    #FFFFFF;
+        --bg-elev-2:    #F4EFE5;
+        --bg-elev-3:    #ECE5D7;
+        --border:        rgba(20, 18, 14, 0.08);
+        --border-strong: rgba(20, 18, 14, 0.18);
+        --text:         #1E1A14;
+        --text-soft:    #4A4439;
+        --text-muted:   #6B6457;
+        --text-faint:   #8A8378;
+        --accent:       #B8924A;
+        --accent-hover: #9A7634;
+        --accent-soft:  rgba(184, 146, 74, 0.14);
+        --accent-fg:    #FAF7F0;
+    }
+}
