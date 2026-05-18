@@ -123,6 +123,35 @@ async function init() {
     renderSequence();
     renderEnergy();
     redraw();
+
+    // Если пришли с каталога с ?stone=ID — добавляем камень и подсвечиваем
+    applyUrlStone();
+}
+
+function applyUrlStone() {
+    const params = new URLSearchParams(location.search);
+    const stoneId = params.get('stone');
+    if (!stoneId) return;
+    const stone = findStone(state.catalogue, stoneId);
+    if (!stone) return;
+
+    state.selectedStoneId = stoneId;
+    renderPalette();   // перерисовать, чтобы появился класс is-active на чипе
+    addStone(stoneId, state.selectedSize);
+    toast.success(`${stone.name} добавлен в браслет`);
+
+    // Чистим query — чтобы при ручном reload не дублировалось
+    try {
+        const url = new URL(location.href);
+        url.searchParams.delete('stone');
+        history.replaceState({}, '', url);
+    } catch (_) { /* noop */ }
+
+    // Скроллим к выбранному чипу в палитре
+    requestAnimationFrame(() => {
+        const node = document.querySelector(`.stone-chip[data-stone-id="${stoneId}"]`);
+        if (node) node.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
 }
 
 // =================================================================
