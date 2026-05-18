@@ -34,7 +34,7 @@ const BOTTOM_NAV = [
       icon: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18M3 12h18"/>',
       label: 'Камни' },
     { id: 'inspiration',  href: 'inspiration.html',
-      icon: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>',
+      icon: '<rect x="3" y="4" width="8" height="6" rx="1"/><rect x="13" y="4" width="8" height="10" rx="1"/><rect x="3" y="12" width="8" height="8" rx="1"/><rect x="13" y="16" width="8" height="4" rx="1"/>',
       label: 'Лента' },
 ];
 
@@ -80,6 +80,11 @@ function renderHeader(active) {
             </button>
 
             <nav class="site-nav" id="siteNav" aria-label="Основная навигация">
+                <button class="site-nav__close" id="navClose" type="button" aria-label="Закрыть меню">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 6l12 12M18 6L6 18"/>
+                    </svg>
+                </button>
                 ${NAV.filter(n => n.id !== 'home').map(n => `
                     <a href="${n.href}" class="site-nav__link${n.id === active ? ' is-active' : ''}">${n.label}</a>
                 `).join('')}
@@ -118,6 +123,9 @@ function renderHeader(active) {
         document.body.style.overflow = open ? 'hidden' : '';
     }
     toggle.addEventListener('click', () => setNavOpen(!nav.classList.contains('is-open')));
+    // Кнопка закрытия (×) в drawer
+    const closeBtn = header.querySelector('#navClose');
+    if (closeBtn) closeBtn.addEventListener('click', () => setNavOpen(false));
     // Закрывать drawer по клику на ссылку
     nav.querySelectorAll('.site-nav__link').forEach(a =>
         a.addEventListener('click', () => setNavOpen(false))

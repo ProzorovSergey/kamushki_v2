@@ -69,6 +69,20 @@
     color: var(--text-soft);
 }
 
+.site-nav__close {
+    display: none;          /* видна только в drawer на mobile */
+    width: 44px;
+    height: 44px;
+    color: var(--text-soft);
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    transition: color var(--dur-mid) var(--ease), border-color var(--dur-mid) var(--ease);
+}
+.site-nav__close:hover { color: var(--accent); border-color: var(--accent); }
+
 /* --- Theme toggle (sun/moon в шапке) ------------------------ */
 
 .theme-toggle {
@@ -250,30 +264,37 @@
 
 @media (max-width: 720px) {
     .site-header__inner { height: 60px; }
+    .site-header__brand { font-size: 18px; color: var(--text); }
     .site-nav__toggle { display: inline-flex; align-items: center; justify-content: center; }
 
-    /* Сама нав-строка скрыта; вместо неё drawer + bottom-bar */
+    /* Сама нав-строка СКРЫТА полностью; вместо неё drawer + bottom-bar.
+       Используем visibility, чтобы пункты не «протекали» через прозрачный фон
+       на устройствах, где backdrop-filter не работает или работает плохо. */
     .site-nav {
         position: fixed;
         inset: 0;
         z-index: 100;
-        background: rgba(6, 6, 10, 0.92);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
+        background: var(--bg);                       /* СПЛОШНОЙ фон, без прозрачности */
         display: flex;
         flex-direction: column;
         gap: var(--space-4);
         padding: 96px var(--gutter) var(--gutter);
         opacity: 0;
+        visibility: hidden;                          /* добавлено: гарантированно скрываем */
         pointer-events: none;
         transform: translateY(-12px);
         transition: opacity var(--dur-mid) var(--ease-out),
-                    transform var(--dur-mid) var(--ease-out);
+                    transform var(--dur-mid) var(--ease-out),
+                    visibility 0s linear var(--dur-mid);
     }
     .site-nav.is-open {
         opacity: 1;
+        visibility: visible;
         pointer-events: auto;
         transform: translateY(0);
+        transition: opacity var(--dur-mid) var(--ease-out),
+                    transform var(--dur-mid) var(--ease-out),
+                    visibility 0s linear 0s;
     }
     .site-nav .site-nav__link {
         font-size: var(--text-md);
@@ -283,6 +304,19 @@
         min-height: var(--tap-target);
         display: flex;
         align-items: center;
+    }
+
+    /* Theme-toggle и user-меню в drawer на мобиле — снимаем компактное
+       позиционирование, чтобы они стали обычными строками меню */
+    .site-nav .theme-toggle { align-self: flex-start; }
+    .site-nav .site-nav__user { margin-left: 0; }
+
+    /* Кнопка закрытия (×) в правом верхнем углу drawer */
+    .site-nav__close {
+        display: inline-flex;
+        position: absolute;
+        top: 14px;
+        right: var(--gutter);
     }
 
     .site-footer__inner { grid-template-columns: 1fr; }
