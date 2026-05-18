@@ -503,13 +503,17 @@ html[data-theme="light"] .stone-card__heart {
 
 /* --- Детальная модалка камня ------------------------------------ */
 
+/* Кастомная ширина модалки — переопределяем глобальный max-width: 520px */
+.modal.modal--stone-detail {
+    max-width: 760px;
+}
+
 .stone-detail {
     display: grid;
-    grid-template-columns: 280px 1fr;
+    grid-template-columns: 260px 1fr;
     gap: var(--space-7);
     align-items: start;
-    min-width: 580px;
-    max-width: 720px;
+    width: 100%;
 }
 
 .stone-detail__visual {

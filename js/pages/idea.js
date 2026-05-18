@@ -7,7 +7,7 @@ import * as ideas from '../services/ideaService.js';
 import * as users from '../services/userService.js';
 import { loadStones } from '../core/database.js';
 import { renderMini } from '../ui/miniBracelet.js';
-import { generateStoneTexture, preloadAlbedos } from '../core/stoneGenerator.js';
+import { generateStoneTexture, preloadAlbedos, onAlbedoReady } from '../core/stoneGenerator.js';
 import { toast } from '../ui/toast.js';
 import { openModal } from '../ui/modal.js';
 
@@ -194,12 +194,19 @@ function render({ idea, author, me, catalogue }) {
     stoneList.querySelectorAll('canvas[data-stone]').forEach(c => {
         const stone = catalogue.find(x => x.id === c.dataset.stone);
         if (!stone) return;
-        const dpr = window.devicePixelRatio || 1;
-        c.width = 32 * dpr; c.height = 32 * dpr;
-        const ctx = c.getContext('2d');
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        const tex = generateStoneTexture(stone, 32, +c.dataset.var || 0);
-        ctx.drawImage(tex, 0, 0, 32, 32);
+        const variant = +c.dataset.var || 0;
+        const drawIcon = () => {
+            const dpr = window.devicePixelRatio || 1;
+            c.width = 32 * dpr; c.height = 32 * dpr;
+            const ctx = c.getContext('2d');
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, 32, 32);
+            const tex = generateStoneTexture(stone, 32, variant);
+            ctx.drawImage(tex, 0, 0, 32, 32);
+        };
+        drawIcon();
+        // Когда подгрузится PNG-альбедо — перерисовать иконку с фото-текстурой
+        onAlbedoReady(stone.id, drawIcon);
     });
 
     // Действия

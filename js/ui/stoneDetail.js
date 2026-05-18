@@ -80,6 +80,7 @@ export async function openStoneDetail(stone) {
     const m = openModal({
         title: '',
         body,
+        className: 'modal--stone-detail',
         buttons: [
             { label: 'Закрыть',                 kind: 'ghost',   onClick: ({ close }) => close() },
             { label: 'Добавить в конструктор',  kind: 'primary', onClick: ({ close }) => {

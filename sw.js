@@ -12,7 +12,7 @@
  * Версионирование: при изменении CACHE_VERSION старые caches удаляются.
  */
 
-const CACHE_VERSION = 'jos-v6-mobile-drawer';
+const CACHE_VERSION = 'jos-v7-png-export-card';
 const STATIC_CACHE  = `${CACHE_VERSION}-static`;
 const STONES_CACHE  = `${CACHE_VERSION}-stones`;
 const DATA_CACHE    = `${CACHE_VERSION}-data`;

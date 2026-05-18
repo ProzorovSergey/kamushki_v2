@@ -14,12 +14,12 @@
  *   });
  */
 
-export function openModal({ title = '', body = '', buttons = [], onClose, dismissible = true } = {}) {
+export function openModal({ title = '', body = '', buttons = [], onClose, dismissible = true, className = '' } = {}) {
     const backdrop = document.createElement('div');
     backdrop.className = 'modal-backdrop';
 
     const box = document.createElement('div');
-    box.className = 'modal';
+    box.className = 'modal' + (className ? ' ' + className : '');
     box.setAttribute('role', 'dialog');
     box.setAttribute('aria-modal', 'true');
     if (title) box.setAttribute('aria-label', title);

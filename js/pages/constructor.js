@@ -6,14 +6,14 @@
  */
 
 import { loadStones, findStone } from '../core/database.js';
-import { generateStoneTexture, preloadAlbedos } from '../core/stoneGenerator.js';
+import { generateStoneTexture, preloadAlbedos, onAlbedoReady } from '../core/stoneGenerator.js';
 import {
     renderBracelet,
     canAddStone,
     totalStoneLength,
     serializeBracelet,
 } from '../core/bracelet.js';
-import { exportPNG, buildMailto } from '../core/exporter.js';
+import { exportPNG, exportCard, buildMailto } from '../core/exporter.js';
 import * as auth from '../services/authService.js';
 import * as ideas from '../services/ideaService.js';
 import * as ai from '../services/aiService.js';
@@ -262,17 +262,22 @@ function renderPalette() {
         </button>
     `).join('');
 
-    // Рисуем превью камней
+    // Рисуем превью камней + подписываемся на PNG-альбедо для перерисовки
     els.palette.querySelectorAll('canvas[data-stone-thumb]').forEach(c => {
         const id = c.dataset.stoneThumb;
         const stone = findStone(state.catalogue, id);
         if (!stone) return;
-        const dpr = window.devicePixelRatio || 1;
-        c.width = 44 * dpr; c.height = 44 * dpr;
-        const ctx = c.getContext('2d');
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        const tex = generateStoneTexture(stone, 44, 0);
-        ctx.drawImage(tex, 0, 0, 44, 44);
+        const drawThumb = () => {
+            const dpr = window.devicePixelRatio || 1;
+            c.width = 44 * dpr; c.height = 44 * dpr;
+            const ctx = c.getContext('2d');
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, 44, 44);
+            const tex = generateStoneTexture(stone, 44, 0);
+            ctx.drawImage(tex, 0, 0, 44, 44);
+        };
+        drawThumb();
+        onAlbedoReady(id, drawThumb);
     });
 }
 
@@ -400,17 +405,22 @@ function renderSequence() {
         </li>
     `).join('');
 
-    // Превью каждого камня
+    // Превью каждого камня + подписка на PNG-альбедо
     els.sequenceList.querySelectorAll('canvas[data-seq-thumb]').forEach(c => {
         const idx = +c.dataset.seqThumb;
         const item = stones[idx];
         if (!item) return;
-        const dpr = window.devicePixelRatio || 1;
-        c.width = 28 * dpr; c.height = 28 * dpr;
-        const ctx = c.getContext('2d');
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        const tex = generateStoneTexture(item.stone, 28, idx);
-        ctx.drawImage(tex, 0, 0, 28, 28);
+        const draw = () => {
+            const dpr = window.devicePixelRatio || 1;
+            c.width = 28 * dpr; c.height = 28 * dpr;
+            const ctx = c.getContext('2d');
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, 28, 28);
+            const tex = generateStoneTexture(item.stone, 28, idx);
+            ctx.drawImage(tex, 0, 0, 28, 28);
+        };
+        draw();
+        onAlbedoReady(item.stoneId, draw);
     });
 
     els.sequenceList.querySelectorAll('button[data-remove]').forEach(btn => {
@@ -452,14 +462,20 @@ function setupActions() {
     els.clearBtn.addEventListener('click', clearAll);
     els.randomBtn.addEventListener('click', randomFill);
 
-    els.downloadBtn.addEventListener('click', () => {
-        exportPNG(els.canvas, 'auraline');
+    els.downloadBtn.addEventListener('click', async () => {
+        if (!state.bracelet.stones.length) {
+            // Если браслет пустой — просто сохранить текущий canvas
+            exportPNG(els.canvas, 'jewerly-of-soul');
+            return;
+        }
+        await exportCard(state.bracelet, { prefix: 'jewerly-of-soul' });
+        toast.success('Карточка сохранена в загрузки');
     });
 
-    els.sendBtn.addEventListener('click', () => {
+    els.sendBtn.addEventListener('click', async () => {
         if (!state.bracelet.stones.length) return;
         const data = serializeBracelet(state.bracelet);
-        exportPNG(els.canvas, 'auraline');
+        await exportCard(state.bracelet, { prefix: 'jewerly-of-soul' });
         setTimeout(() => { window.location.href = buildMailto(data); }, 300);
     });
 
