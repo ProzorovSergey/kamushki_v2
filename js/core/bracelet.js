@@ -78,10 +78,26 @@ export function renderBracelet(canvas, state, opts = {}) {
     // Фон — глубокий тёмный с радиальным «свечением» в центре,
     // как на референсных макетах Jewerly of Soul.
     ctx.clearRect(0, 0, W, H);
+    // Цвета фона зависят от текущей темы — берём из CSS-переменной
+    // --bg-elev-1, чтобы холст браслета сливался с подиумом карточки
+    // в обеих темах. Падение — захардкоженный тёмный.
+    const cssBg = (() => {
+        try {
+            const v = getComputedStyle(document.documentElement).getPropertyValue('--bg-elev-1').trim();
+            return v || '#0E0E14';
+        } catch { return '#0E0E14'; }
+    })();
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
     const bg = ctx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) * 0.7);
-    bg.addColorStop(0, '#15131A');
-    bg.addColorStop(0.6, '#0B0A10');
-    bg.addColorStop(1, '#06060A');
+    if (isLight) {
+        bg.addColorStop(0, '#F4EAD0');
+        bg.addColorStop(0.6, '#ECDFC0');
+        bg.addColorStop(1, '#E2D2A8');
+    } else {
+        bg.addColorStop(0, '#15131A');
+        bg.addColorStop(0.6, '#0B0A10');
+        bg.addColorStop(1, '#06060A');
+    }
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
 
@@ -112,7 +128,9 @@ export function renderBracelet(canvas, state, opts = {}) {
     // --- Направляющая "нитка" — тонкая пунктирная окружность ---
     if (opts.showGuide !== false) {
         ctx.save();
-        ctx.strokeStyle = 'rgba(232, 228, 221, 0.08)';
+        ctx.strokeStyle = isLight
+            ? 'rgba(60, 50, 30, 0.18)'
+            : 'rgba(232, 228, 221, 0.08)';
         ctx.lineWidth = 1;
         ctx.setLineDash([2, 5]);
         ctx.beginPath();

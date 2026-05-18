@@ -67,11 +67,13 @@ function fire(theme) {
     } catch {}
 }
 
-// Применить сохранённую тему на старте (раньше, чем рендерится layout)
+// Применить тему на старте: явно сохранённую ИЛИ дефолтную тёмную.
+// Раньше при 'auto' атрибут вообще не ставился — и тогда срабатывало
+// правило @media (prefers-color-scheme: light), что давало кашу у людей
+// со светлой системной темой. Теперь дефолт всегда тёмная.
 const initial = getTheme();
-if (initial && initial !== 'auto') {
-    document.documentElement.setAttribute('data-theme', initial);
-}
+const themeToApply = (initial === 'light') ? 'light' : 'dark';
+document.documentElement.setAttribute('data-theme', themeToApply);
 
 // Слушаем смену системной темы — если у пользователя 'auto'
 try {

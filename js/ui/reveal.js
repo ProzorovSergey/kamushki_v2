@@ -50,6 +50,16 @@ function attach(el) {
         return;
     }
 
+    // Если элемент уже в viewport ИЛИ выше его (страница загружена с
+    // сохранённой позицией) — показать мгновенно, без ожидания scroll.
+    const r = el.getBoundingClientRect();
+    const viewportH = window.innerHeight || document.documentElement.clientHeight;
+    const alreadyVisible = r.top < viewportH;
+    if (alreadyVisible) {
+        reveal(el);
+        return;
+    }
+
     if (!io) {
         io = new IntersectionObserver(entries => {
             entries.forEach(entry => {
@@ -60,7 +70,7 @@ function attach(el) {
             });
         }, {
             threshold: 0.08,
-            rootMargin: '0px 0px -80px 0px',  // на 80px до появления — уже начинаем
+            rootMargin: '0px 0px -80px 0px',
         });
     }
     io.observe(el);
