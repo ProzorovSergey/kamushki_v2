@@ -22,7 +22,7 @@ const NAV = [
     { id: 'contact',      href: 'contact.html',       label: 'Связаться' },
 ];
 
-// Иконки для bottom-nav (только главные 4 раздела для thumb-зоны)
+// Иконки для bottom-nav: 5 главных разделов (mobile-only, всегда виден)
 const BOTTOM_NAV = [
     { id: 'home',         href: 'index.html',
       icon: '<path d="M3 12 12 3l9 9"/><path d="M5 10v10h14V10"/>',
@@ -36,6 +36,9 @@ const BOTTOM_NAV = [
     { id: 'inspiration',  href: 'inspiration.html',
       icon: '<rect x="3" y="4" width="8" height="6" rx="1"/><rect x="13" y="4" width="8" height="10" rx="1"/><rect x="3" y="12" width="8" height="8" rx="1"/><rect x="13" y="16" width="8" height="4" rx="1"/>',
       label: 'Лента' },
+    { id: 'contact',      href: 'contact.html',
+      icon: '<path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>',
+      label: 'Связь' },
 ];
 
 const PROTECTED_PAGES = new Set(['profile', 'create-idea']);
@@ -73,21 +76,13 @@ function renderHeader(active) {
         <div class="site-header__inner">
             <a href="index.html" class="site-header__brand" aria-label="Jewerly of Soul — главная">Jewerly of Soul</a>
 
-            <button class="site-nav__toggle" id="navToggle" aria-label="Меню" aria-expanded="false">
-                <svg class="icon" viewBox="0 0 24 24" width="22" height="22">
-                    <path d="M4 7h16M4 12h16M4 17h16"/>
-                </svg>
-            </button>
-
             <nav class="site-nav" id="siteNav" aria-label="Основная навигация">
-                <button class="site-nav__close" id="navClose" type="button" aria-label="Закрыть меню">
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M6 6l12 12M18 6L6 18"/>
-                    </svg>
-                </button>
                 ${NAV.filter(n => n.id !== 'home').map(n => `
                     <a href="${n.href}" class="site-nav__link${n.id === active ? ' is-active' : ''}">${n.label}</a>
                 `).join('')}
+            </nav>
+
+            <div class="site-header__actions">
                 <button class="theme-toggle" id="themeToggle" type="button" aria-label="Переключить тему">
                     <svg class="theme-toggle__icon theme-toggle__icon--moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
@@ -98,7 +93,7 @@ function renderHeader(active) {
                     </svg>
                 </button>
                 <span class="site-nav__user" id="siteNavUser">…</span>
-            </nav>
+            </div>
         </div>
     `;
 
@@ -115,26 +110,6 @@ function renderHeader(active) {
         onThemeChange(syncBtn);
     }
 
-    const toggle = header.querySelector('#navToggle');
-    const nav    = header.querySelector('#siteNav');
-    function setNavOpen(open) {
-        nav.classList.toggle('is-open', open);
-        toggle.setAttribute('aria-expanded', String(open));
-        document.body.style.overflow = open ? 'hidden' : '';
-    }
-    toggle.addEventListener('click', () => setNavOpen(!nav.classList.contains('is-open')));
-    // Кнопка закрытия (×) в drawer
-    const closeBtn = header.querySelector('#navClose');
-    if (closeBtn) closeBtn.addEventListener('click', () => setNavOpen(false));
-    // Закрывать drawer по клику на ссылку
-    nav.querySelectorAll('.site-nav__link').forEach(a =>
-        a.addEventListener('click', () => setNavOpen(false))
-    );
-    // Закрывать drawer по Escape
-    document.addEventListener('keydown', e => {
-        if (e.key === 'Escape' && nav.classList.contains('is-open')) setNavOpen(false);
-    });
-
     renderUserSlot(active);
 }
 
@@ -146,48 +121,25 @@ async function renderUserSlot(active) {
 
     if (!me) {
         slot.innerHTML = `
-            <a href="login.html" class="site-nav__link${active === 'login' ? ' is-active' : ''}">Войти</a>
+            <a href="login.html" class="user-slot user-slot--guest${active === 'login' ? ' is-active' : ''}">
+                <svg class="user-slot__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+                    <polyline points="10 17 15 12 10 7"/>
+                    <line x1="15" y1="12" x2="3" y2="12"/>
+                </svg>
+                <span class="user-slot__label">Вход</span>
+            </a>
         `;
         return;
     }
 
+    // Залогинен — прямая ссылка на профиль с аватаром и именем
     slot.innerHTML = `
-        <div class="user-menu">
-            <button class="user-menu__btn" type="button" aria-haspopup="true" aria-expanded="false">
-                <span class="avatar">${escapeHtml(me.avatar || '✦')}</span>
-                <span class="user-menu__name">${escapeHtml(me.displayName)}</span>
-            </button>
-            <div class="user-menu__dropdown" hidden>
-                <a class="user-menu__item" href="profile.html">
-                    <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg>
-                    Профиль
-                </a>
-                <a class="user-menu__item" href="create-idea.html">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-                    Новая идея
-                </a>
-                <button class="user-menu__item user-menu__item--danger" id="logoutBtn" type="button">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
-                    Выйти
-                </button>
-            </div>
-        </div>
+        <a href="profile.html" class="user-slot${active === 'profile' ? ' is-active' : ''}" aria-label="Перейти в профиль">
+            <span class="avatar">${escapeHtml(me.avatar || '✦')}</span>
+            <span class="user-slot__name">${escapeHtml(me.displayName)}</span>
+        </a>
     `;
-
-    const btn = slot.querySelector('.user-menu__btn');
-    const dd  = slot.querySelector('.user-menu__dropdown');
-    btn.addEventListener('click', e => {
-        e.stopPropagation();
-        const open = dd.hidden;
-        dd.hidden = !open;
-        btn.setAttribute('aria-expanded', String(open));
-    });
-    document.addEventListener('click', () => { dd.hidden = true; btn.setAttribute('aria-expanded', 'false'); });
-
-    slot.querySelector('#logoutBtn').addEventListener('click', async () => {
-        await auth.logout();
-        location.href = 'index.html';
-    });
 }
 
 function renderBottomNav(active) {

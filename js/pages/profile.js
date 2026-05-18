@@ -49,6 +49,16 @@ async function init() {
     els.cntLiked.textContent= (me.likes || []).length;
 
     els.tabs.forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+
+    // Выйти из аккаунта
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', async () => {
+            await auth.logout();
+            location.href = 'index.html';
+        });
+    }
+
     switchTab('my');
 }
 
